@@ -74,7 +74,12 @@ app.post('/api/tasks', passport.authenticate('jwt', {session: false}), async (re
     let tags = req.body.tags;
 
     let position = await Task.getNextPositionByUserId(currentUser.id);
-    let task = await Task.create(currentUser.id, content, position, false);
+    let task = await Task.save({
+        user_id: currentUser.id,
+        content: content,
+        position: position,
+        completed: false
+    });
 
     if (task) {
         return res.status(200).json(task);
@@ -83,6 +88,45 @@ app.post('/api/tasks', passport.authenticate('jwt', {session: false}), async (re
     }
 });
 
+/**
+ * Update the given task with the given data, if valid.
+ * Used for moving the position of a task, marking as complete/not complete, etc.
+ */
+app.put('/api/tasks/:taskId', passport.authenticate('jwt', {session: false}), async (req, res) => {
+    let currentUser = req.user;
+    let taskId = req.params.taskId;
+
+    let task = await Task.getById(taskId);
+    if (task && task.user_id === currentUser.id) {
+        // parameter validation
+        if (req.body.content !== undefined) {
+            task.content = req.body.content;
+        }
+        if (req.body.position !== undefined) {
+            if (req.body.position > await Task.getNextPositionByUserId(currentUser.id) - 1 || req.body.position < 0) {
+                return res.status(400).json({message: 'Invalid task position.'});
+            } else {
+                task.position = req.body.position;
+            }
+        }
+        if (req.body.completed !== undefined) {
+            if (req.body.completed !== 'true' && req.body.completed !== 'false') {
+                return res.status(400).json({message: 'Invalid completion status.'});
+            } else {
+                task.completed = req.body.completed;
+            }
+        }
+
+        let updatedTask = await Task.save(task);
+        if (updatedTask) {
+            return res.status(200).json(updatedTask);
+        } else {
+            return res.status(400).json({message: 'Task could not be updated.'});
+        }
+    } else {
+        return res.status(400).json({message: 'Invalid task ID.'});
+    }
+});
 
 // start server
 app.listen(port, () => console.log(`Listening on port ${port}...`));
