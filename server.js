@@ -3,6 +3,7 @@ require('dotenv').config();
 
 const express = require('express');
 const bodyParser = require('body-parser');
+const path = require('path');
 
 const jwt = require('jsonwebtoken');
 const passport = require('passport');
@@ -15,11 +16,12 @@ const Tag = require('./models/tag.js');
 const app = express();
 const port = process.env.PORT;
 
+app.use('/static', express.static(path.join(__dirname, 'client', 'build'), {fallthrough: false}));
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({extended: true}));
 passport.use(JWTStrategy);
 
-// routes
+// API routes
 /**
  * Registration route that creates a user.
  */
@@ -29,9 +31,9 @@ app.post('/register', async (req, res) => {
 
     let user = await User.create(email, password);
     if (!user) {
-        res.status(400).json({message: 'User account could not be created.'});
+        return res.status(400).json({message: 'User account could not be created.'});
     } else {
-        res.status(200).json({message: 'Registration successful.', user: user.id});
+        return res.status(200).json({message: 'Registration successful.', user: user.id});
     }
 });
 
@@ -184,6 +186,16 @@ app.delete('/api/tags/:tagId', passport.authenticate('jwt', {session: false}), a
     } else {
         return res.status(400).json({message: 'Could not delete tag.'});
     }
+});
+
+
+// base routes
+/**
+ * Serve the frontend React single page application entry point file.
+ * Wildcard match, so that all client side routing URLs that are not already explicitly defined are served the entry point file.
+ */
+app.get('/*', (req, res) => {
+    res.sendFile(path.join(__dirname, 'client', 'build', 'index.html'));
 });
 
 
