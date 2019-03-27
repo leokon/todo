@@ -29,7 +29,7 @@ CREATE TABLE tags (
 
 CREATE TABLE tagmap (
   id serial PRIMARY KEY,
-  task_id integer REFERENCES tasks (id),
-  tag_id integer REFERENCES tags (id),
+  task_id integer REFERENCES tasks (id) ON DELETE CASCADE,
+  tag_id integer REFERENCES tags (id) ON DELETE CASCADE,
   unique(task_id, tag_id)
 );

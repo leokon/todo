@@ -87,9 +87,9 @@ app.post('/api/tasks', passport.authenticate('jwt', {session: false}), async (re
             // create tags if any and link them to this task
             for (let currentTag of tags) {
                 currentTag.user_id = currentUser.id;
-                let tag = await Tag.create(currentTag);
+                let tag = await Tag.createOrRetrieve(currentTag);
                 if (tag) {
-                    Tag.link(tag, task.id);
+                    await Tag.link(tag, task.id);
                 }
             }
         }
@@ -142,7 +142,47 @@ app.put('/api/tasks/:taskId', passport.authenticate('jwt', {session: false}), as
     } else {
         return res.status(400).json({message: 'Invalid task ID.'});
     }
+
+
+    // TODO: allow editing of tags for the given task
+
 });
+
+/**
+ * Create a new tag for the current user, not linked to any task.
+ */
+app.post('/api/tags', passport.authenticate('jwt', {session: false}), async (req, res) => {
+     let currentUser = req.user;
+     let tag = await Tag.create({
+         user_id: currentUser.id,
+         name: req.body.name
+     });
+
+     if (tag) {
+         return res.status(200).json(tag);
+     } else {
+         return res.status(400).json({message: 'Could not create tag.'});
+     }
+});
+
+/**
+ * Delete a tag based on the given ID for the current user.
+ */
+app.delete('/api/tags/:tagId', passport.authenticate('jwt', {session: false}), async (req, res) => {
+    let currentUser = req.user;
+    let tagId = req.params.tagId;
+
+    let result = await Tag.remove({
+        id: tagId,
+        user_id: currentUser.id
+    });
+    if (result) {
+        return res.status(200).json({message: 'Successfully deleted tag.'});
+    } else {
+        return res.status(400).json({message: 'Could not delete tag.'});
+    }
+});
+
 
 // start server
 app.listen(port, () => console.log(`Listening on port ${port}...`));
