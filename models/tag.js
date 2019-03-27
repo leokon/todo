@@ -41,7 +41,23 @@ async function link(tag, taskId) {
     }
 }
 
+/**
+ * Retrieves all tags linked to the given task, returns an array of tags. Returns an empty array on error.
+ */
+async function getTagsByTask(task) {
+    try {
+        return await db.any(
+            'SELECT tags.id, tags.name FROM tags INNER JOIN tagmap ON (tags.id = tagmap.tag_id) WHERE task_id = $1',
+            [task.id]
+        );
+    } catch (error) {
+        console.log(error);
+        return [];
+    }
+}
+
 module.exports = {
     create,
-    link
+    link,
+    getTagsByTask
 };

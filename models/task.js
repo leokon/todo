@@ -1,4 +1,5 @@
 const db = require('../db.js');
+const Tag = require('./tag.js');
 
 /**
  * Saves a task object to the database. Updates an existing task if it already exists based on ID, otherwise creates it.
@@ -50,7 +51,14 @@ async function save(task) {
  */
 async function getById(taskId) {
     try {
-        return await db.one('SELECT * FROM tasks WHERE id = $1', [taskId]);
+        let task = await db.one('SELECT * FROM tasks WHERE id = $1', [taskId]);
+        if (task) {
+            // fetch associated tags
+            task.tags = await Tag.getTagsByTask(task);
+            return task;
+        } else {
+            return null;
+        }
     } catch (error) {
         console.log(error);
         return null;
@@ -62,7 +70,18 @@ async function getById(taskId) {
  */
 async function getByUser(userId) {
     try {
-        return await db.any('SELECT * FROM tasks WHERE user_id = $1 ORDER BY position', [userId]);
+        let taskArray = await db.any('SELECT * FROM tasks WHERE user_id = $1 ORDER BY position', [userId]);
+        if (taskArray) {
+            // fetch associated tags
+            let outputArray = [];
+            for (let task of taskArray) {
+                task.tags = await Tag.getTagsByTask(task);
+                outputArray.push(task);
+            }
+            return outputArray;
+        } else {
+            return null;
+        }
     } catch (error) {
         console.log(error);
         return null;

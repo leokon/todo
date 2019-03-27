@@ -86,12 +86,16 @@ app.post('/api/tasks', passport.authenticate('jwt', {session: false}), async (re
         if (tags) {
             // create tags if any and link them to this task
             for (let currentTag of tags) {
+                currentTag.user_id = currentUser.id;
                 let tag = await Tag.create(currentTag);
                 if (tag) {
                     Tag.link(tag, task.id);
                 }
             }
         }
+
+        // add tags to task response object
+        task.tags = await Tag.getTagsByTask(task);
 
         return res.status(200).json(task);
     } else {
@@ -130,6 +134,7 @@ app.put('/api/tasks/:taskId', passport.authenticate('jwt', {session: false}), as
 
         let updatedTask = await Task.save(task);
         if (updatedTask) {
+            updatedTask.tags = await Tag.getTagsByTask(updatedTask);
             return res.status(200).json(updatedTask);
         } else {
             return res.status(400).json({message: 'Task could not be updated.'});
