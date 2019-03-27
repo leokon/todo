@@ -23,11 +23,13 @@ CREATE TABLE tasks (
 CREATE TABLE tags (
   id serial PRIMARY KEY,
   user_id integer REFERENCES users (id),
-  name text NOT NULL
+  name text NOT NULL,
+  unique(user_id, name)
 );
 
 CREATE TABLE tagmap (
   id serial PRIMARY KEY,
   task_id integer REFERENCES tasks (id),
-  tag_id integer REFERENCES tags (id)
+  tag_id integer REFERENCES tags (id),
+  unique(task_id, tag_id)
 );

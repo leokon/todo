@@ -10,6 +10,7 @@ const JWTStrategy = require('./auth.js').JWTStrategy;
 
 const User = require('./models/user.js');
 const Task = require('./models/task.js');
+const Tag = require('./models/tag.js');
 
 const app = express();
 const port = process.env.PORT;
@@ -82,6 +83,16 @@ app.post('/api/tasks', passport.authenticate('jwt', {session: false}), async (re
     });
 
     if (task) {
+        if (tags) {
+            // create tags if any and link them to this task
+            for (let currentTag of tags) {
+                let tag = await Tag.create(currentTag);
+                if (tag) {
+                    Tag.link(tag, task.id);
+                }
+            }
+        }
+
         return res.status(200).json(task);
     } else {
         return res.status(400).json({message: 'Could not create task.'});
