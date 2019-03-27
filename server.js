@@ -117,6 +117,7 @@ app.put('/api/tasks/:taskId', passport.authenticate('jwt', {session: false}), as
         if (req.body.content !== undefined) {
             task.content = req.body.content;
         }
+
         if (req.body.position !== undefined) {
             if (req.body.position > await Task.getNextPositionByUserId(currentUser.id) - 1 || req.body.position < 0) {
                 return res.status(400).json({message: 'Invalid task position.'});
@@ -124,6 +125,7 @@ app.put('/api/tasks/:taskId', passport.authenticate('jwt', {session: false}), as
                 task.position = req.body.position;
             }
         }
+
         if (req.body.completed !== undefined) {
             if (req.body.completed !== 'true' && req.body.completed !== 'false') {
                 return res.status(400).json({message: 'Invalid completion status.'});
@@ -131,6 +133,11 @@ app.put('/api/tasks/:taskId', passport.authenticate('jwt', {session: false}), as
                 task.completed = req.body.completed;
             }
         }
+
+        if (req.body.tags !== undefined) {
+            task.tags = req.body.tags;
+        }
+
 
         let updatedTask = await Task.save(task);
         if (updatedTask) {
@@ -142,10 +149,6 @@ app.put('/api/tasks/:taskId', passport.authenticate('jwt', {session: false}), as
     } else {
         return res.status(400).json({message: 'Invalid task ID.'});
     }
-
-
-    // TODO: allow editing of tags for the given task
-
 });
 
 /**

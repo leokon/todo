@@ -1,3 +1,4 @@
+const _ = require('underscore');
 const db = require('../db.js');
 const Tag = require('./tag.js');
 
@@ -13,6 +14,43 @@ async function save(task) {
 
     try {
         if (existingTask) {
+            // for each new tag that doesnt exist in existing tags, create the link
+            for (let tag of task.tags) {
+                let found = false;
+                for (let current of existingTask.tags) {
+                    if (current.id === tag.id) {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found) {
+                    let result = await Tag.link(tag, task.id);
+                    if (!result) {
+                        return null;
+                    }
+                }
+            }
+
+            // for each existing tag that doesnt exist in new tags, delete the link
+            for (let tag of existingTask.tags) {
+                let found = false;
+                for (let current of task.tags) {
+                    if (current.id === tag.id) {
+                        found = true;
+                        break;
+                    }
+                }
+
+                if (!found) {
+                    await db.none(
+                        'DELETE FROM tagmap WHERE task_id = $1 AND tag_id = $2',
+                        [task.id, tag.id]
+                    );
+                }
+            }
+
+
             // task already exists, update
             // if position is being changed, change the positions of all of this user's other tasks to match
             if (task.position > existingTask.position) {
