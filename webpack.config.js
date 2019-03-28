@@ -1,3 +1,5 @@
+require('@babel/polyfill');
+
 const path = require('path');
 const HtmlWebpackPlugin = require('html-webpack-plugin');
 
@@ -7,7 +9,7 @@ const htmlPlugin = new HtmlWebpackPlugin({
 });
 
 module.exports = {
-    entry: './client/src/index.js',
+    entry: ['@babel/polyfill', './client/src/index.js'],
     output: {
         path: path.resolve('./client/build'),
         publicPath: "/static"

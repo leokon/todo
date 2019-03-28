@@ -25,7 +25,7 @@ passport.use(JWTStrategy);
 /**
  * Registration route that creates a user.
  */
-app.post('/register', async (req, res) => {
+app.post('/api/register', async (req, res) => {
     let email = req.body.email.toLowerCase();
     let password = req.body.password;
 
@@ -40,7 +40,7 @@ app.post('/register', async (req, res) => {
 /**
  * Login route that authenticates based on email and password and returns a JWT token for future authentication.
  */
-app.post('/login', async (req, res) => {
+app.post('/api/login', async (req, res) => {
     let email = req.body.email;
     let password = req.body.password;
 
