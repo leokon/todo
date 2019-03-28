@@ -1,23 +1,39 @@
 import React from 'react';
 import Helpers from '../helpers.js';
+import Auth from '../auth.js';
+import requireAuth from './RequireAuth.js';
 
 class App extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {error: null};
+        this.state = {
+            tasks: [],
+            tags: [],
+            error: null
+        };
+
+        this.handleLogout = this.handleLogout.bind(this);
+        this.Auth = new Auth();
     }
 
     componentWillMount() {
         this.fetchInitialData();
     }
 
+    /**
+     * Fetch complete task and tag state for the currently authenticated user, populate state.
+     */
     async fetchInitialData() {
         try {
-            console.log('fetching inital data');
             let tasks = await Helpers.fetch('/api/tasks', {
-                method: 'GET',
+                method: 'GET'
             });
-            console.log(tasks);
+            this.setState({tasks: tasks});
+
+            let tags = await Helpers.fetch('/api/tags', {
+                method: 'GET'
+            });
+            this.setState({tags: tags});
         } catch (error) {
             if (error.response.status === 401) {
                 this.props.history.replace('/login');
@@ -28,10 +44,16 @@ class App extends React.Component {
         }
     }
 
+    handleLogout() {
+        this.Auth.logout();
+        this.props.history.replace('/login');
+    }
+
     render() {
         return (
             <div>
                 <div>Base app entry point component</div>
+                <button onClick={this.handleLogout}>Logout</button>
                 {this.state.error &&
                     <div>Error: could not load tasks.</div>
                 }
@@ -40,7 +62,7 @@ class App extends React.Component {
     }
 }
 
-export default App;
+export default requireAuth(App);
 
 
 

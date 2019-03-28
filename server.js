@@ -154,6 +154,20 @@ app.put('/api/tasks/:taskId', passport.authenticate('jwt', {session: false}), as
 });
 
 /**
+ * Get the list of all tags for the currently authenticated user.
+ */
+app.get('/api/tags', passport.authenticate('jwt', {session: false}), async (req, res) => {
+    let currentUser = req.user;
+
+    let tags = await Tag.getByUser(currentUser.id);
+    if (tags) {
+        return res.status(200).json(tags);
+    } else {
+        return res.status(400).json({message: 'Could not retrieve tags list.'});
+    }
+});
+
+/**
  * Create a new tag for the current user, not linked to any task.
  */
 app.post('/api/tags', passport.authenticate('jwt', {session: false}), async (req, res) => {

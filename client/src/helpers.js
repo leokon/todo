@@ -28,8 +28,6 @@ class Helpers {
      * Checks the status of a fetch request response, throws an error containing the original response object if it is not a success.
      */
     static checkResponseStatus(response) {
-        console.log(`checking response status of ${response}`);
-
         if (response.status >= 200 && response.status < 300) {
             return response;
         } else {

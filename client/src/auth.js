@@ -21,6 +21,25 @@ class Auth {
     }
 
     /**
+     * Register a user with the given email and password. Automatically logs the user in if success, otherwise throws an error.
+     */
+    async register(email, password) {
+        try {
+            let response = await Helpers.fetch('/api/register', {
+                method: 'POST',
+                body: JSON.stringify({
+                    email,
+                    password
+                })
+            });
+
+            await this.login(email, password);
+        } catch (error) {
+            throw error;
+        }
+    }
+
+    /**
      * Check if the current user is authenticated based on whether there is a stored token.
      */
     isUserAuthenticated() {

@@ -1,22 +1,14 @@
 import React from 'react';
-
 import Auth from '../auth.js';
 
-class Login extends React.Component {
+class Register extends React.Component {
     constructor(props) {
         super(props);
-        this.state = {email: '', password: '', error: null};
+        this.state = {};
 
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
-        this.handleRegister = this.handleRegister.bind(this);
         this.Auth = new Auth();
-    }
-
-    componentWillMount() {
-        if (this.Auth.isUserAuthenticated()) {
-            this.props.history.replace('/');
-        }
     }
 
     handleChange(event) {
@@ -26,41 +18,34 @@ class Login extends React.Component {
     async handleSubmit(event) {
         event.preventDefault();
 
-        // make an API request to login endpoint
+        // make an API request to register endpoint
         try {
-            // login successful, redirect to full app
-            await this.Auth.login(this.state.email, this.state.password);
+            // registration successful, redirect to full app
+            await this.Auth.register(this.state.email, this.state.password);
             this.props.history.replace('/');
         } catch (error) {
-            // login failed, display error on login form
+            // register failed, display error on registration form
             this.setState({
                 error: error
             });
         }
-
-        console.log(this.state.email, this.state.password);
-    }
-
-    handleRegister() {
-        this.props.history.replace('/register');
     }
 
     render() {
         return (
             <div>
-                Login Form
+                Register Form
                 {this.state.error &&
-                    <div>Invalid login details.</div>
+                    <div>Invalid registration details.</div>
                 }
                 <form onSubmit={this.handleSubmit}>
                     <input type="email" name="email" value={this.state.email} onChange={this.handleChange} />
                     <input type="password" name="password" value={this.state.password} onChange={this.handleChange} />
                     <input type="submit" value="Submit" />
                 </form>
-                <button onClick={this.handleRegister}>Register</button>
             </div>
         );
     }
 }
 
-export default Login;
+export default Register;

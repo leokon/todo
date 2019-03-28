@@ -57,6 +57,26 @@ async function link(tag, taskId) {
 }
 
 /**
+ * Gets an array of all tags for the given user if exists, otherwise returns null.
+ */
+async function getByUser(userId) {
+    try {
+        let tagArray = await db.any(
+            'SELECT * FROM tags WHERE user_id = $1',
+            [userId]
+        );
+        if (tagArray) {
+            return tagArray;
+        } else {
+            return [];
+        }
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
+}
+
+/**
  * Retrieves all tags linked to the given task, returns an array of tags. Returns an empty array on error.
  */
 async function getTagsByTask(task) {
@@ -92,6 +112,7 @@ module.exports = {
     create,
     createOrRetrieve,
     link,
+    getByUser,
     getTagsByTask,
     remove
 };
