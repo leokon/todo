@@ -2,6 +2,7 @@ import React from 'react';
 import Helpers from '../helpers.js';
 import Auth from '../auth.js';
 import requireAuth from './RequireAuth.js';
+import TaskList from './TaskList.js';
 
 class App extends React.Component {
     constructor(props) {
@@ -13,6 +14,7 @@ class App extends React.Component {
         };
 
         this.handleLogout = this.handleLogout.bind(this);
+        this.handleTaskMoved = this.handleTaskMoved.bind(this);
         this.Auth = new Auth();
     }
 
@@ -44,6 +46,25 @@ class App extends React.Component {
         }
     }
 
+    /**
+     * Responds to task position being changed by user, updates state and sends request to server.
+     */
+    async handleTaskMoved(fromIndex, toIndex) {
+        // update tasks array so that the task at fromIndex is now at toIndex, shuffling the other tasks respectively
+        let tasks = Array.from(this.state.tasks);
+        let [movingTask] = tasks.splice(fromIndex, 1);
+        tasks.splice(toIndex, 0, movingTask);
+        this.setState({tasks: tasks});
+
+        // make server request to move task
+        let response = await Helpers.fetch(`/api/tasks/${movingTask.id}`, {
+            method: 'PUT',
+            body: JSON.stringify({
+                position: toIndex
+            })
+        });
+    }
+
     handleLogout() {
         this.Auth.logout();
         this.props.history.replace('/login');
@@ -54,20 +75,14 @@ class App extends React.Component {
             <div>
                 <div>Base app entry point component</div>
                 <button onClick={this.handleLogout}>Logout</button>
-                {this.state.error &&
+                {this.state.error ? (
                     <div>Error: could not load tasks.</div>
-                }
+                ) : (
+                    <TaskList {...this.props} tasks={this.state.tasks} handleTaskMoved={this.handleTaskMoved} />
+                )}
             </div>
         );
     }
 }
 
 export default requireAuth(App);
-
-
-
-// TODO: authentication
-    // if user is not logged in (no token in local storage), show them the login page
-    // if user is logged in (token found in local storage), use it to make requests, fetch data and display logged in app
-    // if a request fails due to invalid token, remove the token from local storage and show user the login page
-    // if user clicks on a register button, show them the register page
