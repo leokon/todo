@@ -1,7 +1,8 @@
 import React from 'react';
 
 /**
- * Represents a single todo task.
+ * Represents a single todo task and associated controls.
+ * Allows editing of task content, marking as completed, and deletion.
  */
 class Task extends React.Component {
     constructor(props) {

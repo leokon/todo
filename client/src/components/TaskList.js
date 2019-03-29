@@ -4,6 +4,7 @@ import {
     Droppable,
     Draggable
 } from 'react-beautiful-dnd';
+import Helpers from '../helpers.js';
 import Task from './Task.js';
 
 /**
@@ -17,9 +18,10 @@ class TaskList extends React.Component {
     }
 
     /**
-     * Handles tasks being moved, notifies parent to update state and make server request via an event callback
+     * Handles tasks being moved, makes server request and notifies parent to update state via event callback
+     * Fails silently on request failure, allows user to move tasks around locally.
      */
-    onDragEnd(result) {
+    async onDragEnd(result) {
         if (!result.destination) {
             return;
         }
@@ -28,35 +30,49 @@ class TaskList extends React.Component {
         }
 
         this.props.handleTaskMoved(result.source.index, result.destination.index);
+
+        let movingTask = this.props.tasks[result.source.index];
+        await Helpers.fetch(`/api/tasks/${movingTask.id}`, {
+            method: 'PUT',
+            body: JSON.stringify({
+                position: result.destination.index
+            })
+        });
     }
 
     render() {
-        return (
-            <DragDropContext onDragEnd={this.onDragEnd}>
-                <Droppable droppableId='droppable'>
-                    {(provided, snapshot) => (
-                        <div {...provided.droppableProps} ref={provided.innerRef}>
-                            {this.props.tasks.map((task, index) => {
-                                return (
-                                    <Draggable key={task.id} draggableId={task.id} index={index}>
-                                        {(provided, snapshot) => (
-                                            <Task
-                                                key={task.id}
-                                                task={task}
-                                                innerRef={provided.innerRef}
-                                                {...provided.draggableProps}
-                                                {...provided.dragHandleProps}
-                                            />
-                                        )}
-                                    </Draggable>
-                                );
-                            })}
-                            {provided.placeholder}
-                        </div>
-                    )}
-                </Droppable>
-            </DragDropContext>
-        );
+        if (this.props.error) {
+            return (
+                <div>Error: could not load tasks.</div>
+            );
+        } else {
+            return (
+                <DragDropContext onDragEnd={this.onDragEnd}>
+                    <Droppable droppableId='droppable'>
+                        {(provided, snapshot) => (
+                            <div {...provided.droppableProps} ref={provided.innerRef}>
+                                {this.props.tasks.map((task, index) => {
+                                    return (
+                                        <Draggable key={task.id} draggableId={task.id} index={index}>
+                                            {(provided, snapshot) => (
+                                                <Task
+                                                    key={task.id}
+                                                    task={task}
+                                                    innerRef={provided.innerRef}
+                                                    {...provided.draggableProps}
+                                                    {...provided.dragHandleProps}
+                                                />
+                                            )}
+                                        </Draggable>
+                                    );
+                                })}
+                                {provided.placeholder}
+                            </div>
+                        )}
+                    </Droppable>
+                </DragDropContext>
+            );
+        }
     }
 }
 
