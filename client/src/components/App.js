@@ -4,6 +4,7 @@ import Auth from '../auth.js';
 import requireAuth from './RequireAuth.js';
 import TaskList from './TaskList.js';
 import TaskForm from './TaskForm.js';
+import TagList from './TagList.js';
 
 import _ from 'underscore';
 
@@ -20,6 +21,7 @@ class App extends React.Component {
         this.handleLogout = this.handleLogout.bind(this);
         this.handleTaskCreated = this.handleTaskCreated.bind(this);
         this.handleTaskMoved = this.handleTaskMoved.bind(this);
+        this.handleTagCreated = this.handleTagCreated.bind(this);
         this.handleDraftTagCreated = this.handleDraftTagCreated.bind(this);
         this.Auth = new Auth();
     }
@@ -77,6 +79,16 @@ class App extends React.Component {
     }
 
     /**
+     * Updates tag state in response to a new tag being created.
+     */
+    async handleTagCreated(tag) {
+        this.setState({
+            tags: [...this.state.tags, tag],
+            draftTags: [...this.state.draftTags, tag]
+        });
+    }
+
+    /**
      * Updates draft tag array state in response to a new draft tag being created.
      */
     async handleDraftTagCreated(tag) {
@@ -102,6 +114,11 @@ class App extends React.Component {
                     handleDraftTagCreated={this.handleDraftTagCreated}
                 />
                 <TaskList {...this.props} tasks={this.state.tasks} error={this.state.error} handleTaskMoved={this.handleTaskMoved} />
+
+                <div>
+                    <br/><br/><br/>
+                    <TagList {...this.props} tags={this.state.tags} handleTagCreated={this.handleTagCreated} />
+                </div>
             </div>
         );
     }
