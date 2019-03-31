@@ -1,23 +1,40 @@
 import React from 'react';
+import CreatableSelect from 'react-select/lib/Creatable';
 import Helpers from "../helpers";
 
 class TaskForm extends React.Component {
     constructor(props) {
         super(props);
 
-        this.initialState = {
+        this.state = {
             content: '',
-            tags: [],
+            selectedOptions: [],
             error: null
         };
-        this.state = this.initialState;
 
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.handleTagChange = this.handleTagChange.bind(this);
     }
 
+    /**
+     * Handles changes to task form values
+     */
     handleChange(event) {
         this.setState({[event.target.name]: event.target.value});
+    }
+
+    /**
+     * Handles selected tag state updates and creation of new draft tags from react-select component, locally only.
+     */
+    handleTagChange(newValue, meta) {
+        if (meta.action === 'create-option') {
+            let addedValue = newValue.slice(-1)[0];
+            let tag = {name: addedValue.value};
+            this.props.handleDraftTagCreated(tag);
+        }
+
+        this.setState({selectedOptions: newValue});
     }
 
     /**
@@ -31,15 +48,15 @@ class TaskForm extends React.Component {
                 method: 'POST',
                 body: JSON.stringify({
                     content: this.state.content,
-                    tags: this.state.tags
+                    tags: this.state.selectedOptions.map((option) => ({name: option.value}))
                 })
             });
 
-            // success, update parent state with created task via event callback
             if (createdTask) {
+                // success, update parent state with created task via event callback and reset form
                 this.props.handleTaskCreated(createdTask);
 
-                this.setState(this.initialState);
+                this.setState({content: '', selectedOptions: [], error: null});
             } else {
                 this.setState({error: true})
             }
@@ -51,14 +68,23 @@ class TaskForm extends React.Component {
     render() {
         return (
             <div>
-                <form onSubmit={this.handleSubmit}>
-                    <input type="text" name="content" value={this.state.content} onChange={this.handleChange} />
-                    <input type="submit" value="Submit" />
-                </form>
+                <div>
+                    <form onSubmit={this.handleSubmit}>
+                        <input type="text" name="content" value={this.state.content} onChange={this.handleChange} />
+                        <input type="submit" value="Submit" />
+                    </form>
 
-                {this.state.error &&
+                    {this.state.error &&
                     <div>Error: could not create task.</div>
-                }
+                    }
+                </div>
+
+                <CreatableSelect
+                    isMulti
+                    value={this.state.selectedOptions}
+                    options={this.props.draftTags.map(tag => ({label: tag.name, value: tag.name}))}
+                    onChange={this.handleTagChange}
+                />
             </div>
         );
     }

@@ -5,18 +5,22 @@ import requireAuth from './RequireAuth.js';
 import TaskList from './TaskList.js';
 import TaskForm from './TaskForm.js';
 
+import _ from 'underscore';
+
 class App extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
             tasks: [],
             tags: [],
+            draftTags: [],
             error: null
         };
 
         this.handleLogout = this.handleLogout.bind(this);
         this.handleTaskCreated = this.handleTaskCreated.bind(this);
         this.handleTaskMoved = this.handleTaskMoved.bind(this);
+        this.handleDraftTagCreated = this.handleDraftTagCreated.bind(this);
         this.Auth = new Auth();
     }
 
@@ -37,7 +41,7 @@ class App extends React.Component {
             let tags = await Helpers.fetch('/api/tags', {
                 method: 'GET'
             });
-            this.setState({tags: tags});
+            this.setState({tags: tags, draftTags: tags});
         } catch (error) {
             if (error.response.status === 401) {
                 this.props.history.replace('/login');
@@ -49,13 +53,15 @@ class App extends React.Component {
     }
 
     /**
-     * Updates task array state in response to a new task being created.
+     * Updates task and tag array state in response to a new task being created.
      */
     async handleTaskCreated(task) {
-        let tasksArray = Array.from(this.state.tasks);
-        tasksArray.push(task);
-        tasksArray.sort((a, b) => (a.position > b.position ? 1 : -1));
-        this.setState({tasks: tasksArray});
+        this.setState({tasks: [...this.state.tasks, task]});
+
+        // merge this task's tags into state, without creating duplicates
+        this.setState({
+            tags: _.uniq(_.union(this.state.tags, task.tags), false, _.property('id'))
+        });
     }
 
     /**
@@ -70,6 +76,13 @@ class App extends React.Component {
         this.setState({tasks: tasks});
     }
 
+    /**
+     * Updates draft tag array state in response to a new draft tag being created.
+     */
+    async handleDraftTagCreated(tag) {
+        this.setState({draftTags: [...this.state.draftTags, tag]});
+    }
+
     handleLogout() {
         this.Auth.logout();
         this.props.history.replace('/login');
@@ -81,7 +94,13 @@ class App extends React.Component {
                 <div>Base app entry point component</div>
                 <button onClick={this.handleLogout}>Logout</button>
 
-                <TaskForm handleTaskCreated={this.handleTaskCreated} />
+                <TaskForm
+                    {...this.props}
+                    tags={this.state.tags}
+                    draftTags={this.state.draftTags}
+                    handleTaskCreated={this.handleTaskCreated}
+                    handleDraftTagCreated={this.handleDraftTagCreated}
+                />
                 <TaskList {...this.props} tasks={this.state.tasks} error={this.state.error} handleTaskMoved={this.handleTaskMoved} />
             </div>
         );
