@@ -37,8 +37,6 @@ class Login extends React.Component {
                 error: error
             });
         }
-
-        console.log(this.state.email, this.state.password);
     }
 
     handleRegister() {
