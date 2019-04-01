@@ -46,14 +46,26 @@ class TaskList extends React.Component {
                 <div>Error: could not load tasks.</div>
             );
         } else {
+            // filter tags in the list based on specified filter tags
+            let filteredTasks = this.props.tasks.filter((task) => {
+                for (let filterTag of this.props.filterTags) {
+                    // if this filter tag isn't in the current task's tags, don't allow it
+                    if (!(task.tags.some((tag) => (tag.id === filterTag.id)))) {
+                        return false;
+                    }
+                }
+
+                return true;
+            });
+
             return (
                 <DragDropContext onDragEnd={this.onDragEnd}>
                     <Droppable droppableId='droppable'>
                         {(provided, snapshot) => (
                             <div {...provided.droppableProps} ref={provided.innerRef}>
-                                {this.props.tasks.map((task, index) => {
+                                {filteredTasks.map((task, index) => {
                                     return (
-                                        <Draggable key={task.id} draggableId={task.id} index={index}>
+                                        <Draggable key={task.id} draggableId={task.id} index={index} isDragDisabled={this.props.filterTags.length > 0} >
                                             {(provided, snapshot) => (
                                                 <Task
                                                     key={task.id}

@@ -2,7 +2,6 @@ import React from 'react';
 import Helpers from '../helpers.js';
 import Tag from './Tag.js';
 
-
 /**
  * Represents a list of tags associated with the currently authenticated user, including elements for creation and deletion of tags.
  */
@@ -12,10 +11,13 @@ class TagList extends React.Component {
 
         this.state = {
             name: '',
-            error: null
+            error: null,
+            selectedIndexes: [],
+            selectedTags: []
         };
         this.handleChange = this.handleChange.bind(this);
         this.handleSubmit = this.handleSubmit.bind(this);
+        this.handleClickTag = this.handleClickTag.bind(this);
     }
 
     handleChange(event) {
@@ -47,6 +49,25 @@ class TagList extends React.Component {
         }
     }
 
+    /**
+     * Handles a tag in the tag list being clicked on, selects or deselects it based on state and propagates changes to parent
+     */
+    handleClickTag(tag, index) {
+        if (this.state.selectedIndexes.includes(index)) {
+            // tag is already selected, mark it as deselected and remove it from filter tags
+            this.setState({
+                selectedIndexes: this.state.selectedIndexes.filter((i) => (i !== index)),
+                selectedTags: this.state.selectedTags.filter((t) => (t.id !== tag.id))
+            }, () => {this.props.handleFilterTagsChanged(this.state.selectedTags)});
+        } else {
+            // tag is not already selected, mark it as selected and add it to filter tags
+            this.setState({
+                selectedIndexes: [...this.state.selectedIndexes, index],
+                selectedTags: [...this.state.selectedTags, tag]
+            }, () => {this.props.handleFilterTagsChanged(this.state.selectedTags)});
+        }
+    }
+
     render() {
         return (
             <div>
@@ -62,11 +83,14 @@ class TagList extends React.Component {
                 </div>
 
                 <div>
-                    {this.props.tags.map((tag, index) => {
-                        return (
-                            <Tag key={tag.id} tag={tag} />
-                        );
-                    })}
+                    {this.props.tags.map((tag, index) => (
+                        <Tag
+                            key={tag.id}
+                            tag={tag}
+                            selected={this.state.selectedIndexes.includes(index)}
+                            onClick={() => this.handleClickTag(tag, index)}
+                        />
+                    ))}
                 </div>
             </div>
         );
@@ -74,3 +98,6 @@ class TagList extends React.Component {
 }
 
 export default TagList;
+
+// TODO:
+    // tag controls, delete tags, edit tags, etc, inline controls in list, in Tag component

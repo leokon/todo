@@ -15,6 +15,7 @@ class App extends React.Component {
             tasks: [],
             tags: [],
             draftTags: [],
+            filterTags: [],
             error: null
         };
 
@@ -23,6 +24,7 @@ class App extends React.Component {
         this.handleTaskMoved = this.handleTaskMoved.bind(this);
         this.handleTagCreated = this.handleTagCreated.bind(this);
         this.handleDraftTagCreated = this.handleDraftTagCreated.bind(this);
+        this.handleFilterTagsChanged = this.handleFilterTagsChanged.bind(this);
         this.Auth = new Auth();
     }
 
@@ -95,6 +97,13 @@ class App extends React.Component {
         this.setState({draftTags: [...this.state.draftTags, tag]});
     }
 
+    /**
+     * Updates filter tag state in response to a change in filter tags selected.
+     */
+    async handleFilterTagsChanged(selectedTags) {
+        this.setState({filterTags: selectedTags});
+    }
+
     handleLogout() {
         this.Auth.logout();
         this.props.history.replace('/login');
@@ -113,11 +122,22 @@ class App extends React.Component {
                     handleTaskCreated={this.handleTaskCreated}
                     handleDraftTagCreated={this.handleDraftTagCreated}
                 />
-                <TaskList {...this.props} tasks={this.state.tasks} error={this.state.error} handleTaskMoved={this.handleTaskMoved} />
+                <TaskList
+                    {...this.props}
+                    tasks={this.state.tasks}
+                    filterTags={this.state.filterTags}
+                    error={this.state.error}
+                    handleTaskMoved={this.handleTaskMoved}
+                />
 
                 <div>
                     <br/><br/><br/>
-                    <TagList {...this.props} tags={this.state.tags} handleTagCreated={this.handleTagCreated} />
+                    <TagList
+                        {...this.props}
+                        tags={this.state.tags}
+                        handleTagCreated={this.handleTagCreated}
+                        handleFilterTagsChanged={this.handleFilterTagsChanged}
+                    />
                 </div>
             </div>
         );

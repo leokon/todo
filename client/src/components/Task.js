@@ -1,4 +1,5 @@
 import React from 'react';
+import Tag from './Tag.js';
 
 /**
  * Represents a single todo task and associated controls.
@@ -12,7 +13,15 @@ class Task extends React.Component {
     render() {
         return (
             <div {...this.props} ref={this.props.innerRef}>
-                {this.props.task.content}
+                <div>{this.props.task.content}</div>
+                <div>
+                    {this.props.task.tags.map((tag) => (
+                        <Tag
+                            key={tag.id}
+                            tag={tag}
+                        />
+                    ))}
+                </div>
             </div>
         );
     }
