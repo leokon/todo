@@ -68,14 +68,14 @@ async function save(task) {
             }
 
             return await db.one(
-                'UPDATE tasks SET user_id = $1, content = $2, position = $3, completed = $4 WHERE id = $5 RETURNING *',
-                [task.user_id, task.content, task.position, task.completed, existingTask.id]
+                'UPDATE tasks SET user_id = $1, content = $2, position = $3, completed = $4, completed_at = $5 WHERE id = $6 RETURNING *',
+                [task.user_id, task.content, task.position, task.completed, task.completed_at, existingTask.id]
             );
         } else {
             // task doesn't already exist, create
             return await db.one(
-                'INSERT INTO tasks (user_id, content, position, completed) VALUES ($1, $2, $3, $4) RETURNING *',
-                [task.user_id, task.content, task.position, task.completed]
+                'INSERT INTO tasks (user_id, content, position, completed, completed_at) VALUES ($1, $2, $3, $4, $5) RETURNING *',
+                [task.user_id, task.content, task.position, task.completed, task.completed_at]
             );
         }
     } catch (error) {

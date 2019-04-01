@@ -133,6 +133,7 @@ app.put('/api/tasks/:taskId', passport.authenticate('jwt', {session: false}), as
                 return res.status(400).json({message: 'Invalid completion status.'});
             } else {
                 task.completed = req.body.completed;
+                task.completed_at = new Date().toISOString();
             }
         }
 

@@ -17,6 +17,7 @@ CREATE TABLE tasks (
   content text NOT NULL,
   position integer NOT NULL,
   completed boolean NOT NULL DEFAULT false,
+  completed_at timestamp NULL,
   created_at timestamp NOT NULL DEFAULT now()
 );
 
