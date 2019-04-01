@@ -29,13 +29,19 @@ class TaskList extends React.Component {
             return;
         }
 
-        this.props.handleTaskMoved(result.source.index, result.destination.index);
-
         let movingTask = this.props.tasks[result.source.index];
+        let destinationPosition = this.props.tasks[result.destination.index].position;
+
+        // console.log('moving', movingTask);
+        // console.log('destination task', this.props.tasks[result.destination.index]);
+        // console.log(`moving from ${movingTask.position} to ${destinationPosition}`);
+
+        this.props.handleTaskMoved(movingTask.position, destinationPosition);
+
         await Helpers.fetch(`/api/tasks/${movingTask.id}`, {
             method: 'PUT',
             body: JSON.stringify({
-                position: result.destination.index
+                position: destinationPosition
             })
         });
     }
@@ -65,7 +71,12 @@ class TaskList extends React.Component {
                             <div {...provided.droppableProps} ref={provided.innerRef}>
                                 {filteredTasks.map((task, index) => {
                                     return (
-                                        <Draggable key={task.id} draggableId={task.id} index={index} isDragDisabled={this.props.filterTags.length > 0} >
+                                        <Draggable
+                                            key={task.id}
+                                            draggableId={task.id}
+                                            index={index}
+                                            isDragDisabled={this.props.filterTags.length > 0 || !this.props.draggable}
+                                        >
                                             {(provided, snapshot) => (
                                                 <Task
                                                     key={task.id}

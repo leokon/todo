@@ -16,6 +16,7 @@ class App extends React.Component {
             tags: [],
             draftTags: [],
             filterTags: [],
+            currentTasksView: true,
             error: null
         };
 
@@ -77,6 +78,10 @@ class App extends React.Component {
         let [movingTask] = tasks.splice(fromIndex, 1);
         tasks.splice(toIndex, 0, movingTask);
 
+        for (let i = 0; i < tasks.length; i++) {
+            tasks[i].position = i;
+        }
+
         this.setState({tasks: tasks});
     }
 
@@ -122,13 +127,33 @@ class App extends React.Component {
                     handleTaskCreated={this.handleTaskCreated}
                     handleDraftTagCreated={this.handleDraftTagCreated}
                 />
-                <TaskList
-                    {...this.props}
-                    tasks={this.state.tasks}
-                    filterTags={this.state.filterTags}
-                    error={this.state.error}
-                    handleTaskMoved={this.handleTaskMoved}
-                />
+
+                <div>
+                    <button onClick={() => (this.setState({currentTasksView: !this.state.currentTasksView}))}>Switch View</button>
+
+                    {this.state.currentTasksView ? (
+                        <TaskList
+                            {...this.props}
+                            tasks={this.state.tasks.filter((task) => (!task.completed))}
+                            filterTags={this.state.filterTags}
+                            error={this.state.error}
+                            draggable={true}
+                            handleTaskMoved={this.handleTaskMoved}
+                        />
+                    ) : (
+                        <TaskList
+                            {...this.props}
+                            tasks={
+                                this.state.tasks
+                                    .filter((task) => (task.completed))
+                                    .sort((a, b) => (new Date(b.completed_at) - new Date(a.completed_at)))
+                            }
+                            filterTags={this.state.filterTags}
+                            error={this.state.error}
+                            draggable={false}
+                        />
+                    )}
+                </div>
 
                 <div>
                     <br/><br/><br/>
