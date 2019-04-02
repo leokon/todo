@@ -154,6 +154,19 @@ app.put('/api/tasks/:taskId', passport.authenticate('jwt', {session: false}), as
     }
 });
 
+app.delete('/api/tasks/:taskId', passport.authenticate('jwt', {session: false}), async (req, res) => {
+    let currentUser = req.user;
+    let taskId = req.params.taskId;
+
+    let task = await Task.getById(taskId);
+    if (task && task.user_id === currentUser.id) {
+        await Task.remove(task);
+        return res.status(200).json({message: 'Task deleted.'});
+    } else {
+        return res.status(400).json({message: 'Task could not be deleted.'});
+    }
+});
+
 /**
  * Get the list of all tags for the currently authenticated user.
  */

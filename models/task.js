@@ -84,6 +84,23 @@ async function save(task) {
     }
 }
 
+async function remove(task) {
+    try {
+        // first update positions of all other user tasks to reflect this task being removed
+        await db.none(
+            'UPDATE tasks SET position = position - 1 WHERE user_id = $1 AND position > $2',
+            [task.user_id, task.position]
+        );
+
+        await db.none(
+            'DELETE FROM tasks WHERE id = $1',
+            [task.id]
+        );
+    } catch (error) {
+        console.log(error);
+    }
+}
+
 /**
  * Gets a single task by its unique ID if it exists, otherwise returns null.
  */
@@ -146,6 +163,7 @@ async function getNextPositionByUserId(userId) {
 
 module.exports = {
     save,
+    remove,
     getById,
     getByUser,
     getNextPositionByUserId

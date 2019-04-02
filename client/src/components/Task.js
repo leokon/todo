@@ -1,4 +1,8 @@
 import React from 'react';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {faTrash} from '@fortawesome/free-solid-svg-icons';
+
+import Helpers from '../helpers.js';
 import Tag from './Tag.js';
 
 /**
@@ -8,6 +12,27 @@ import Tag from './Tag.js';
 class Task extends React.Component {
     constructor(props) {
         super(props);
+
+        this.deleteTask = this.deleteTask.bind(this);
+    }
+
+    handleAddTag() {
+        console.log('add tag');
+    }
+
+    /**
+     * Make server request to delete task and notify parent to update local state
+     */
+    async deleteTask() {
+        try {
+            await Helpers.fetch(`/api/tasks/${this.props.task.id}`, {
+                method: 'DELETE'
+            });
+
+            this.props.handleDeleteTask(this.props.task);
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     render() {
@@ -21,6 +46,10 @@ class Task extends React.Component {
                             tag={tag}
                         />
                     ))}
+                </div>
+
+                <div className="task-delete">
+                    <FontAwesomeIcon icon={faTrash} onClick={this.deleteTask} />
                 </div>
             </div>
         );

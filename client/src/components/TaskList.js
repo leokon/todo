@@ -30,18 +30,15 @@ class TaskList extends React.Component {
         }
 
         let movingTask = this.props.tasks[result.source.index];
-        let destinationPosition = this.props.tasks[result.destination.index].position;
+        let localDestinationTask = this.props.tasks[result.destination.index];
+        let sourceIndex = this.props.fullTasks.findIndex((task) => (task.id === movingTask.id));
+        let destIndex = this.props.fullTasks.findIndex((task) => (task.id === localDestinationTask.id));
 
-        // console.log('moving', movingTask);
-        // console.log('destination task', this.props.tasks[result.destination.index]);
-        // console.log(`moving from ${movingTask.position} to ${destinationPosition}`);
-
-        this.props.handleTaskMoved(movingTask.position, destinationPosition);
-
+        this.props.handleTaskMoved(sourceIndex, destIndex);
         await Helpers.fetch(`/api/tasks/${movingTask.id}`, {
             method: 'PUT',
             body: JSON.stringify({
-                position: destinationPosition
+                position: destIndex
             })
         });
     }
@@ -81,6 +78,7 @@ class TaskList extends React.Component {
                                                 <Task
                                                     key={task.id}
                                                     task={task}
+                                                    handleDeleteTask={this.props.handleDeleteTask}
                                                     innerRef={provided.innerRef}
                                                     {...provided.draggableProps}
                                                     {...provided.dragHandleProps}

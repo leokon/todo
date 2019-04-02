@@ -26,6 +26,7 @@ class App extends React.Component {
         this.handleTagCreated = this.handleTagCreated.bind(this);
         this.handleDraftTagCreated = this.handleDraftTagCreated.bind(this);
         this.handleFilterTagsChanged = this.handleFilterTagsChanged.bind(this);
+        this.handleDeleteTask = this.handleDeleteTask.bind(this);
         this.Auth = new Auth();
     }
 
@@ -109,6 +110,20 @@ class App extends React.Component {
         this.setState({filterTags: selectedTags});
     }
 
+    /**
+     * Updates task array state in response to a task being deleted.
+     */
+    handleDeleteTask(task) {
+        let removeIndex = this.state.tasks.findIndex((t) => (task.id === t.id));
+
+        let newTasks = this.state.tasks.concat();
+        newTasks.splice(removeIndex, 1);
+
+        this.setState({
+            tasks: newTasks
+        });
+    }
+
     handleLogout() {
         this.Auth.logout();
         this.props.history.replace('/login');
@@ -135,10 +150,12 @@ class App extends React.Component {
                         <TaskList
                             {...this.props}
                             tasks={this.state.tasks.filter((task) => (!task.completed))}
+                            fullTasks={this.state.tasks}
                             filterTags={this.state.filterTags}
                             error={this.state.error}
                             draggable={true}
                             handleTaskMoved={this.handleTaskMoved}
+                            handleDeleteTask={this.handleDeleteTask}
                         />
                     ) : (
                         <TaskList
@@ -151,6 +168,7 @@ class App extends React.Component {
                             filterTags={this.state.filterTags}
                             error={this.state.error}
                             draggable={false}
+                            handleDeleteTask={this.handleDeleteTask}
                         />
                     )}
                 </div>
