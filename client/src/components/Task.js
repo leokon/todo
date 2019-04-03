@@ -1,11 +1,40 @@
 import React from 'react';
 import onClickOutside from 'react-onclickoutside';
 import Select from 'react-select';
+import styled from 'styled-components';
 import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
 import {faTrash} from '@fortawesome/free-solid-svg-icons';
 
 import Helpers from '../helpers.js';
 import Tag from './Tag.js';
+
+const Container = styled.div`
+    display: flex;
+    align-items: center;
+`;
+
+const ContentContainer = styled.div`
+    flex-basis: 30%;
+    padding-top: 1rem;
+    padding-bottom: 1rem;
+`;
+
+const TagContainer = styled.div`
+    display: flex;
+    flex-grow: 1;
+`;
+
+const StyledSelect = styled(Select)`
+    flex-grow: 1;
+`;
+
+const CompleteIcon = styled.div`
+    padding: 1rem;
+`;
+
+const DeleteIcon = styled.div`
+    align-self: center;
+`;
 
 /**
  * Represents a single todo task and associated controls.
@@ -51,7 +80,8 @@ class Task extends React.Component {
 
         if (!this.state.editing) {
             await this.setState({
-                editing: true
+                editing: true,
+                selectedOptions: this.props.task.tags.map((tag) => ({label: tag.name, value: tag.name}))
             });
 
             this.contentElement.focus();
@@ -103,44 +133,48 @@ class Task extends React.Component {
 
     render() {
         return (
-            <div
+            <Container
                 {...this.props}
                 ref={this.props.innerRef}
                 onClick={this.handleClick}
                 onMouseEnter={() => {this.setState({hovering: true})}}
                 onMouseLeave={() => {this.setState({hovering: false})}}
             >
-                <div
+                <CompleteIcon>
+                    C
+                </CompleteIcon>
+
+                <ContentContainer
                     contentEditable={this.state.editing}
                     ref={(domNode) => {this.contentElement = domNode;}}
                 >
                     {this.props.task.content}
-                </div>
+                </ContentContainer>
 
                 {this.state.editing ? (
-                    <Select
+                    <StyledSelect
                         isMulti
                         options={this.props.tags.map(tag => ({label: tag.name, value: tag.name}))}
                         defaultValue={this.props.task.tags.map(tag => ({label: tag.name, value: tag.name}))}
                         onChange={this.handleChange}
                     />
                 ) : (
-                    <div className="tags">
+                    <TagContainer>
                         {this.props.task.tags.map((tag) => (
                             <Tag
                                 key={tag.id}
                                 tag={tag}
                             />
                         ))}
-                    </div>
+                    </TagContainer>
                 )}
 
-                {(this.state.hovering || this.props.isDragging) &&
-                    <div className="task-delete">
+                {(this.state.hovering || this.state.editing || this.props.isDragging) &&
+                    <DeleteIcon>
                         <FontAwesomeIcon icon={faTrash} onClick={this.deleteTask} />
-                    </div>
+                    </DeleteIcon>
                 }
-            </div>
+            </Container>
         );
     }
 }

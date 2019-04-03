@@ -1,6 +1,16 @@
 import React from 'react';
 import CreatableSelect from 'react-select/lib/Creatable';
+import styled from 'styled-components';
+
 import Helpers from "../helpers";
+
+const Container = styled.div`
+    display: flex;
+`;
+
+const StyledSelect = styled(CreatableSelect)`
+    flex-grow: 1;
+`;
 
 class TaskForm extends React.Component {
     constructor(props) {
@@ -67,7 +77,7 @@ class TaskForm extends React.Component {
 
     render() {
         return (
-            <div>
+            <Container>
                 <div>
                     <form onSubmit={this.handleSubmit}>
                         <input type="text" name="content" value={this.state.content} onChange={this.handleChange} />
@@ -79,13 +89,13 @@ class TaskForm extends React.Component {
                     }
                 </div>
 
-                <CreatableSelect
+                <StyledSelect
                     isMulti
                     value={this.state.selectedOptions}
                     options={this.props.draftTags.map(tag => ({label: tag.name, value: tag.name}))}
                     onChange={this.handleTagChange}
                 />
-            </div>
+            </Container>
         );
     }
 }

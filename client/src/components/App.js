@@ -1,4 +1,7 @@
 import React from 'react';
+import styled from 'styled-components';
+import _ from 'underscore';
+
 import Helpers from '../helpers.js';
 import Auth from '../auth.js';
 import requireAuth from './RequireAuth.js';
@@ -6,7 +9,14 @@ import TaskList from './TaskList.js';
 import TaskForm from './TaskForm.js';
 import TagList from './TagList.js';
 
-import _ from 'underscore';
+const OuterContainer = styled.div`
+    display: flex;
+    justify-content: center;
+`;
+
+const AppContainer = styled.div`
+    width: 50%;
+`;
 
 class App extends React.Component {
     constructor(props) {
@@ -145,62 +155,63 @@ class App extends React.Component {
 
     render() {
         return (
-            <div>
-                <div>Base app entry point component</div>
-                <button onClick={this.handleLogout}>Logout</button>
+            <OuterContainer>
+                <AppContainer>
+                    <button onClick={this.handleLogout}>Logout</button>
 
-                <TaskForm
-                    {...this.props}
-                    tags={this.state.tags}
-                    draftTags={this.state.draftTags}
-                    handleTaskCreated={this.handleTaskCreated}
-                    handleDraftTagCreated={this.handleDraftTagCreated}
-                />
-
-                <div>
-                    <button onClick={() => (this.setState({currentTasksView: !this.state.currentTasksView}))}>Switch View</button>
-
-                    {this.state.currentTasksView ? (
-                        <TaskList
-                            {...this.props}
-                            tasks={this.state.tasks.filter((task) => (!task.completed))}
-                            fullTasks={this.state.tasks}
-                            filterTags={this.state.filterTags}
-                            tags={this.state.tags}
-                            error={this.state.error}
-                            draggable={true}
-                            handleTaskMoved={this.handleTaskMoved}
-                            handleDeleteTask={this.handleDeleteTask}
-                            handleUpdateTask={this.handleUpdateTask}
-                        />
-                    ) : (
-                        <TaskList
-                            {...this.props}
-                            tasks={
-                                this.state.tasks
-                                    .filter((task) => (task.completed))
-                                    .sort((a, b) => (new Date(b.completed_at) - new Date(a.completed_at)))
-                            }
-                            filterTags={this.state.filterTags}
-                            tags={this.state.tags}
-                            error={this.state.error}
-                            draggable={false}
-                            handleDeleteTask={this.handleDeleteTask}
-                            handleUpdateTask={this.handleUpdateTask}
-                        />
-                    )}
-                </div>
-
-                <div>
-                    <br/><br/><br/>
-                    <TagList
+                    <TaskForm
                         {...this.props}
                         tags={this.state.tags}
-                        handleTagCreated={this.handleTagCreated}
-                        handleFilterTagsChanged={this.handleFilterTagsChanged}
+                        draftTags={this.state.draftTags}
+                        handleTaskCreated={this.handleTaskCreated}
+                        handleDraftTagCreated={this.handleDraftTagCreated}
                     />
-                </div>
-            </div>
+
+                    <div>
+                        <button onClick={() => (this.setState({currentTasksView: !this.state.currentTasksView}))}>Switch View</button>
+
+                        {this.state.currentTasksView ? (
+                            <TaskList
+                                {...this.props}
+                                tasks={this.state.tasks.filter((task) => (!task.completed))}
+                                fullTasks={this.state.tasks}
+                                filterTags={this.state.filterTags}
+                                tags={this.state.tags}
+                                error={this.state.error}
+                                draggable={true}
+                                handleTaskMoved={this.handleTaskMoved}
+                                handleDeleteTask={this.handleDeleteTask}
+                                handleUpdateTask={this.handleUpdateTask}
+                            />
+                        ) : (
+                            <TaskList
+                                {...this.props}
+                                tasks={
+                                    this.state.tasks
+                                        .filter((task) => (task.completed))
+                                        .sort((a, b) => (new Date(b.completed_at) - new Date(a.completed_at)))
+                                }
+                                filterTags={this.state.filterTags}
+                                tags={this.state.tags}
+                                error={this.state.error}
+                                draggable={false}
+                                handleDeleteTask={this.handleDeleteTask}
+                                handleUpdateTask={this.handleUpdateTask}
+                            />
+                        )}
+                    </div>
+
+                    <div>
+                        <br/><br/><br/>
+                        <TagList
+                            {...this.props}
+                            tags={this.state.tags}
+                            handleTagCreated={this.handleTagCreated}
+                            handleFilterTagsChanged={this.handleFilterTagsChanged}
+                        />
+                    </div>
+                </AppContainer>
+            </OuterContainer>
         );
     }
 }
