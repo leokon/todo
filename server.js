@@ -144,7 +144,20 @@ app.put('/api/tasks/:taskId', passport.authenticate('jwt', {session: false}), as
 
         let updatedTask = await Task.save(task);
         if (updatedTask) {
-            updatedTask.tags = await Tag.getTagsByTask(updatedTask);
+            if (task.tags) {
+                // create tags if any and link them to this task
+                for (let currentTag of task.tags) {
+                    currentTag.user_id = currentUser.id;
+                    let tag = await Tag.createOrRetrieve(currentTag);
+                    if (tag) {
+                        await Tag.link(tag, updatedTask.id);
+                    }
+                }
+            }
+
+            // add tags to task response object
+            updatedTask.tags = await Tag.getTagsByTask(task);
+
             return res.status(200).json(updatedTask);
         } else {
             return res.status(400).json({message: 'Task could not be updated.'});

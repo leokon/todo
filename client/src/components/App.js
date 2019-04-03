@@ -27,6 +27,7 @@ class App extends React.Component {
         this.handleDraftTagCreated = this.handleDraftTagCreated.bind(this);
         this.handleFilterTagsChanged = this.handleFilterTagsChanged.bind(this);
         this.handleDeleteTask = this.handleDeleteTask.bind(this);
+        this.handleUpdateTask = this.handleUpdateTask.bind(this);
         this.Auth = new Auth();
     }
 
@@ -124,6 +125,19 @@ class App extends React.Component {
         });
     }
 
+    /**
+     * Updates task array state in response to a task being updated.
+     */
+    handleUpdateTask(updatedTask) {
+        let tasksCopy = Array.from(this.state.tasks);
+        let updateIndex = tasksCopy.findIndex((task) => (task.id === updatedTask.id));
+        tasksCopy[updateIndex] = updatedTask;
+
+        this.setState({
+            tasks: tasksCopy
+        });
+    }
+
     handleLogout() {
         this.Auth.logout();
         this.props.history.replace('/login');
@@ -152,10 +166,12 @@ class App extends React.Component {
                             tasks={this.state.tasks.filter((task) => (!task.completed))}
                             fullTasks={this.state.tasks}
                             filterTags={this.state.filterTags}
+                            tags={this.state.tags}
                             error={this.state.error}
                             draggable={true}
                             handleTaskMoved={this.handleTaskMoved}
                             handleDeleteTask={this.handleDeleteTask}
+                            handleUpdateTask={this.handleUpdateTask}
                         />
                     ) : (
                         <TaskList
@@ -166,9 +182,11 @@ class App extends React.Component {
                                     .sort((a, b) => (new Date(b.completed_at) - new Date(a.completed_at)))
                             }
                             filterTags={this.state.filterTags}
+                            tags={this.state.tags}
                             error={this.state.error}
                             draggable={false}
                             handleDeleteTask={this.handleDeleteTask}
+                            handleUpdateTask={this.handleUpdateTask}
                         />
                     )}
                 </div>
