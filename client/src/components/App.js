@@ -43,6 +43,7 @@ class App extends React.Component {
         this.handleLogout = this.handleLogout.bind(this);
         this.handleTaskCreated = this.handleTaskCreated.bind(this);
         this.handleTaskMoved = this.handleTaskMoved.bind(this);
+        this.handleTaskCompleted = this.handleTaskCompleted.bind(this);
         this.handleTagCreated = this.handleTagCreated.bind(this);
         this.handleDraftTagCreated = this.handleDraftTagCreated.bind(this);
         this.handleFilterTagsChanged = this.handleFilterTagsChanged.bind(this);
@@ -105,6 +106,19 @@ class App extends React.Component {
         }
 
         this.setState({tasks: tasks});
+    }
+
+    /**
+     * Updates task state in response to
+     */
+    async handleTaskCompleted(completedTask) {
+        let tasksCopy = Array.from(this.state.tasks);
+        let updateIndex = tasksCopy.findIndex((task) => (task.id === completedTask.id));
+        tasksCopy[updateIndex] = completedTask;
+
+        this.setState({
+            tasks: tasksCopy
+        });
     }
 
     /**
@@ -193,6 +207,7 @@ class App extends React.Component {
                                     error={this.state.error}
                                     draggable={true}
                                     handleTaskMoved={this.handleTaskMoved}
+                                    handleTaskCompleted={this.handleTaskCompleted}
                                     handleDeleteTask={this.handleDeleteTask}
                                     handleUpdateTask={this.handleUpdateTask}
                                 />

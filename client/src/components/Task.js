@@ -12,8 +12,6 @@ const Container = styled.div`
     display: flex;
     align-items: center;
     background-color: #FAFAFA;
-    // border-top: 2px solid white;
-    // border-bottom: 2px solid white;
     margin-top: 4px;
     margin-bottom: 4px;
     
@@ -22,12 +20,25 @@ const Container = styled.div`
     &:hover, &:focus, &:active {
         box-shadow: 0px 2px 7px -3px rgba(0,0,0,0.75);
     }
+    
+    animation: ${props => props.animateComplete ? 'slide-out-right 0.6s cubic-bezier(0.550, 0.085, 0.680, 0.530) 1s both' : 'none'};
+    
+    @keyframes slide-out-right {
+        0% {
+            transform: translateX(0);
+            opacity: 1;
+        }
+        100% {
+            transform: translateX(1000px);
+            opacity: 0;
+        }
+    }
 `;
 
 const ContentContainer = styled.div`
-    flex-basis: 30%;
-    padding-top: 1rem;
-    padding-bottom: 1rem;
+    flex-basis: 40%;
+    padding-top: 1.1rem;
+    padding-bottom: 1.1rem;
     padding-left: 1rem;
     
     &:hover {
@@ -44,9 +55,60 @@ const StyledSelect = styled(Select)`
     flex-grow: 1;
 `;
 
-const CompleteIcon = styled.div`
-    padding: 1rem;
+const CompleteIconContainer = styled.div`
+    padding: 0.8rem;
     border-right: 2px solid white;
+`;
+
+const CompleteIcon = styled.svg`
+    cursor: pointer;
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    display: block;
+    stroke-width: 2;
+    stroke: #FAFAFA;
+    stroke-miterlimit: 10;
+    box-shadow: inset 0px 0px 2px #1595AD;
+    animation: ${props => props.animateComplete ? 'fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .8s both' : 'none'};
+    
+    & .circle {
+        stroke-dasharray: 166;
+        stroke-dashoffset: 166;
+        stroke-width: 2;
+        stroke-miterlimit: 10;
+        stroke: #1595AD;
+        fill: none;
+        animation: ${props => props.animateComplete ? 'stroke .5s cubic-bezier(0.650, 0.000, 0.450, 1.000) forwards' : 'none'};
+    }
+    
+    &.path {
+        transform-origin: 50% 50%;
+        stroke-dasharray: 48;
+        stroke-dashoffset: 48;
+        animation: ${props => props.animateComplete ? 'stroke .3s cubic-bezier(0.650, 0.000, 0.450, 1.000) forwards' : 'none'};
+    }
+    
+    @keyframes stroke {
+        100% {
+            stroke-dashoffset: 0;
+        }
+    }
+    
+    @keyframes scale {
+        0%, 100% {
+            transform: none;
+        }
+        50% {
+            transform: scale3d(1.2, 1.2, 1);
+        }
+    }
+    
+    @keyframes fill {
+        100% {
+            box-shadow: inset 0px 0px 0px 30px #1595AD;
+        }
+    }
 `;
 
 const DeleteIcon = styled.div`
@@ -65,11 +127,13 @@ class Task extends React.Component {
 
         this.state = {
             editing: false,
-            selectedOptions: []
+            selectedOptions: [],
+            animateComplete: false
         };
 
         this.deleteTask = this.deleteTask.bind(this);
         this.handleClick = this.handleClick.bind(this);
+        this.handleCompleteClick = this.handleCompleteClick.bind(this);
         this.handleChange = this.handleChange.bind(this);
         this.saveChanges = this.saveChanges.bind(this);
     }
@@ -104,6 +168,30 @@ class Task extends React.Component {
             });
 
             this.contentElement.focus();
+        }
+    }
+
+    /**
+     * Click handler for complete task button, sends request to server and triggers a state update
+     */
+    async handleCompleteClick(event) {
+        event.stopPropagation();
+
+        this.setState({
+            animateComplete: true
+        });
+
+        try {
+            let completedTask = await Helpers.fetch(`/api/tasks/${this.props.task.id}`, {
+                method: 'PUT',
+                body: JSON.stringify({
+                    completed: 'true'
+                })
+            });
+
+            setTimeout(() => {this.props.handleTaskCompleted(completedTask)}, 1500);
+        } catch (error) {
+            console.log(error);
         }
     }
 
@@ -155,14 +243,18 @@ class Task extends React.Component {
             <Container
                 {...this.props}
                 editing={this.state.editing}
+                animateComplete={this.state.animateComplete}
                 ref={this.props.innerRef}
                 onClick={this.handleClick}
                 onMouseEnter={() => {this.setState({hovering: true})}}
                 onMouseLeave={() => {this.setState({hovering: false})}}
             >
-                <CompleteIcon>
-                    C
-                </CompleteIcon>
+                <CompleteIconContainer>
+                    <CompleteIcon viewBox="0 0 52 52" animateComplete={this.state.animateComplete} onClick={this.handleCompleteClick}>
+                        <circle className="circle" cx="26" cy="26" r="25" fill="none" />
+                        <path className="path" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" />
+                    </CompleteIcon>
+                </CompleteIconContainer>
 
                 <ContentContainer
                     contentEditable={this.state.editing}

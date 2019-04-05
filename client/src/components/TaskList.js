@@ -81,6 +81,7 @@ class TaskList extends React.Component {
                                                     tags={this.props.tags}
                                                     handleDeleteTask={this.props.handleDeleteTask}
                                                     handleUpdateTask={this.props.handleUpdateTask}
+                                                    handleTaskCompleted={this.props.handleTaskCompleted}
                                                     innerRef={provided.innerRef}
                                                     isDragging={snapshot.isDragging}
                                                     {...provided.draggableProps}
