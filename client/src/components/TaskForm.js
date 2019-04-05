@@ -1,16 +1,64 @@
 import React from 'react';
 import CreatableSelect from 'react-select/lib/Creatable';
 import styled from 'styled-components';
+import onClickOutside from 'react-onclickoutside';
 
 import Helpers from "../helpers";
 
 const Container = styled.div`
     display: flex;
+    flex-direction: column;
+    margin-bottom: 15px;
+`;
+
+const FormContainer = styled.div`
+    display: flex;
+    flex-direction: row;
+    margin-bottom: 3px;
+    font-size: 16px;
+`;
+
+const StyledForm = styled.form`
+    flex-basis: 65%;
 `;
 
 const StyledSelect = styled(CreatableSelect)`
-    flex-grow: 1;
+    flex-basis: 35%;
 `;
+
+const TaskInput = styled.input`
+    width: 100%;
+    height: 100%;
+    max-height: 38px;    
+    box-sizing: border-box;
+    border: 1px solid #cdcdcd;
+    padding-top: 2px;
+    padding-bottom: 2px;
+    padding-left: 8px;
+    padding-right: 8px;
+    font-size: 16px;
+`;
+
+const SubmitButton = styled.button`
+    flex-basis: 35px;
+    max-height: 35px;
+    max-width: 90px;
+    background-color: #1595AD;
+    color: #FAFAFA;
+    border: none;
+    font-family: 'Roboto', sans-serif;
+    font-weight: bold;
+    cursor: pointer;
+`;
+
+const selectStyles = {
+    control: (provided) => ({
+        ...provided,
+        borderRadius: '0',
+        fontFamily: 'Roboto, sans-serif'
+    })
+};
+
 
 class TaskForm extends React.Component {
     constructor(props) {
@@ -19,6 +67,7 @@ class TaskForm extends React.Component {
         this.state = {
             content: '',
             selectedOptions: [],
+            focused: false,
             error: null
         };
 
@@ -53,6 +102,10 @@ class TaskForm extends React.Component {
     async handleSubmit(event) {
         event.preventDefault();
 
+        if (this.state.content === '') {
+            return;
+        }
+
         try {
             let createdTask = await Helpers.fetch('/api/tasks', {
                 method: 'POST',
@@ -66,7 +119,7 @@ class TaskForm extends React.Component {
                 // success, update parent state with created task via event callback and reset form
                 this.props.handleTaskCreated(createdTask);
 
-                this.setState({content: '', selectedOptions: [], error: null});
+                this.setState({content: '', selectedOptions: [], focused: false, error: null});
             } else {
                 this.setState({error: true})
             }
@@ -75,29 +128,40 @@ class TaskForm extends React.Component {
         }
     }
 
+    handleClickOutside(event) {
+        this.setState({
+            focused: false
+        });
+    }
+
     render() {
         return (
-            <Container>
-                <div>
-                    <form onSubmit={this.handleSubmit}>
-                        <input type="text" name="content" value={this.state.content} onChange={this.handleChange} />
-                        <input type="submit" value="Submit" />
-                    </form>
+            <Container onClick={() => {this.setState({focused: true});}}>
+                <FormContainer>
+                    <StyledForm onSubmit={this.handleSubmit}>
+                        <TaskInput type="text" name="content" placeholder="Add a task..." value={this.state.content} onChange={this.handleChange} />
+                    </StyledForm>
 
-                    {this.state.error &&
+                    <StyledSelect
+                        isMulti
+                        value={this.state.selectedOptions}
+                        options={this.props.draftTags.map(tag => ({label: tag.name, value: tag.name}))}
+                        onChange={this.handleTagChange}
+                        placeholder="Select a tag..."
+                        styles={selectStyles}
+                    />
+                </FormContainer>
+
+                {this.state.focused &&
+                    <SubmitButton type="submit" onClick={this.handleSubmit}>Submit</SubmitButton>
+                }
+
+                {this.state.error &&
                     <div>Error: could not create task.</div>
-                    }
-                </div>
-
-                <StyledSelect
-                    isMulti
-                    value={this.state.selectedOptions}
-                    options={this.props.draftTags.map(tag => ({label: tag.name, value: tag.name}))}
-                    onChange={this.handleTagChange}
-                />
+                }
             </Container>
         );
     }
 }
 
-export default TaskForm;
+export default onClickOutside(TaskForm);

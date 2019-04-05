@@ -14,8 +14,18 @@ const OuterContainer = styled.div`
     justify-content: center;
 `;
 
+const NavbarContainer = styled.div`
+    height: 45px;
+    background-color: #1595AD;
+`;
+
 const AppContainer = styled.div`
     width: 50%;
+    background-color: #FFFFFF;
+    border: 1px solid #CDCDCD;
+    padding-left: 25px;
+    padding-right: 25px;
+    margin-top: 20px;
 `;
 
 class App extends React.Component {
@@ -155,63 +165,67 @@ class App extends React.Component {
 
     render() {
         return (
-            <OuterContainer>
-                <AppContainer>
+            <React.Fragment>
+                <NavbarContainer>
                     <button onClick={this.handleLogout}>Logout</button>
+                </NavbarContainer>
 
-                    <TaskForm
-                        {...this.props}
-                        tags={this.state.tags}
-                        draftTags={this.state.draftTags}
-                        handleTaskCreated={this.handleTaskCreated}
-                        handleDraftTagCreated={this.handleDraftTagCreated}
-                    />
-
-                    <div>
-                        <button onClick={() => (this.setState({currentTasksView: !this.state.currentTasksView}))}>Switch View</button>
-
-                        {this.state.currentTasksView ? (
-                            <TaskList
-                                {...this.props}
-                                tasks={this.state.tasks.filter((task) => (!task.completed))}
-                                fullTasks={this.state.tasks}
-                                filterTags={this.state.filterTags}
-                                tags={this.state.tags}
-                                error={this.state.error}
-                                draggable={true}
-                                handleTaskMoved={this.handleTaskMoved}
-                                handleDeleteTask={this.handleDeleteTask}
-                                handleUpdateTask={this.handleUpdateTask}
-                            />
-                        ) : (
-                            <TaskList
-                                {...this.props}
-                                tasks={
-                                    this.state.tasks
-                                        .filter((task) => (task.completed))
-                                        .sort((a, b) => (new Date(b.completed_at) - new Date(a.completed_at)))
-                                }
-                                filterTags={this.state.filterTags}
-                                tags={this.state.tags}
-                                error={this.state.error}
-                                draggable={false}
-                                handleDeleteTask={this.handleDeleteTask}
-                                handleUpdateTask={this.handleUpdateTask}
-                            />
-                        )}
-                    </div>
-
-                    <div>
-                        <br/><br/><br/>
-                        <TagList
+                <OuterContainer>
+                    <AppContainer>
+                        <TaskForm
                             {...this.props}
                             tags={this.state.tags}
-                            handleTagCreated={this.handleTagCreated}
-                            handleFilterTagsChanged={this.handleFilterTagsChanged}
+                            draftTags={this.state.draftTags}
+                            handleTaskCreated={this.handleTaskCreated}
+                            handleDraftTagCreated={this.handleDraftTagCreated}
                         />
-                    </div>
-                </AppContainer>
-            </OuterContainer>
+
+                        <div>
+                            <button onClick={() => (this.setState({currentTasksView: !this.state.currentTasksView}))}>Switch View</button>
+
+                            {this.state.currentTasksView ? (
+                                <TaskList
+                                    {...this.props}
+                                    tasks={this.state.tasks.filter((task) => (!task.completed))}
+                                    fullTasks={this.state.tasks}
+                                    filterTags={this.state.filterTags}
+                                    tags={this.state.tags}
+                                    error={this.state.error}
+                                    draggable={true}
+                                    handleTaskMoved={this.handleTaskMoved}
+                                    handleDeleteTask={this.handleDeleteTask}
+                                    handleUpdateTask={this.handleUpdateTask}
+                                />
+                            ) : (
+                                <TaskList
+                                    {...this.props}
+                                    tasks={
+                                        this.state.tasks
+                                            .filter((task) => (task.completed))
+                                            .sort((a, b) => (new Date(b.completed_at) - new Date(a.completed_at)))
+                                    }
+                                    filterTags={this.state.filterTags}
+                                    tags={this.state.tags}
+                                    error={this.state.error}
+                                    draggable={false}
+                                    handleDeleteTask={this.handleDeleteTask}
+                                    handleUpdateTask={this.handleUpdateTask}
+                                />
+                            )}
+                        </div>
+
+                        <div>
+                            <br/><br/><br/>
+                            <TagList
+                                {...this.props}
+                                tags={this.state.tags}
+                                handleTagCreated={this.handleTagCreated}
+                                handleFilterTagsChanged={this.handleFilterTagsChanged}
+                            />
+                        </div>
+                    </AppContainer>
+                </OuterContainer>
+            </React.Fragment>
         );
     }
 }

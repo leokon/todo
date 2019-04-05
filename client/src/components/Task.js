@@ -11,12 +11,28 @@ import Tag from './Tag.js';
 const Container = styled.div`
     display: flex;
     align-items: center;
+    background-color: #FAFAFA;
+    // border-top: 2px solid white;
+    // border-bottom: 2px solid white;
+    margin-top: 4px;
+    margin-bottom: 4px;
+    
+    box-shadow: ${(props) => props.editing ? '0px 2px 7px -3px rgba(0,0,0,0.75)' : 'none'};
+    
+    &:hover, &:focus, &:active {
+        box-shadow: 0px 2px 7px -3px rgba(0,0,0,0.75);
+    }
 `;
 
 const ContentContainer = styled.div`
     flex-basis: 30%;
     padding-top: 1rem;
     padding-bottom: 1rem;
+    padding-left: 1rem;
+    
+    &:hover {
+        cursor: text;
+    }
 `;
 
 const TagContainer = styled.div`
@@ -30,10 +46,13 @@ const StyledSelect = styled(Select)`
 
 const CompleteIcon = styled.div`
     padding: 1rem;
+    border-right: 2px solid white;
 `;
 
 const DeleteIcon = styled.div`
     align-self: center;
+    padding: 0px 18px;
+    cursor: pointer;
 `;
 
 /**
@@ -135,6 +154,7 @@ class Task extends React.Component {
         return (
             <Container
                 {...this.props}
+                editing={this.state.editing}
                 ref={this.props.innerRef}
                 onClick={this.handleClick}
                 onMouseEnter={() => {this.setState({hovering: true})}}
@@ -171,7 +191,7 @@ class Task extends React.Component {
 
                 {(this.state.hovering || this.state.editing || this.props.isDragging) &&
                     <DeleteIcon>
-                        <FontAwesomeIcon icon={faTrash} onClick={this.deleteTask} />
+                        <FontAwesomeIcon icon={faTrash} size="lg" onClick={this.deleteTask} />
                     </DeleteIcon>
                 }
             </Container>
@@ -180,3 +200,15 @@ class Task extends React.Component {
 }
 
 export default onClickOutside(Task);
+
+// TODO:
+    // completed button icon, tick w/ animation, AND the actual completion logic and state handling
+    // styling, borders around tasks to make it look like the table on FA site
+
+    // need to actually switch task content to a real text input when editing, dont use contenteditable. looks better, more control over
+// both cursor position and styles
+    // can potentially reuse the TaskForm component, but the issue is styles, since they're defined in the taskform component, how would
+// we change the sizing. or would we? why dont we just make the little taskforms look the same as the main one
+
+    // box shadows and/or change background colour on task editing
+        // maybe box shadow on hover, background change on focus/edit. like google tasks
