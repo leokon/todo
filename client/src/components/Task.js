@@ -46,6 +46,15 @@ const ContentContainer = styled.div`
     }
 `;
 
+const StyledInput = styled.input`
+    flex-basis: 40%;
+    padding: 2px;
+    min-height: 30px;
+    margin-left: 1rem;
+    font-family: 'Roboto', sans-serif;
+    font-size: 16px;
+`;
+
 const TagContainer = styled.div`
     display: flex;
     flex-grow: 1;
@@ -117,6 +126,15 @@ const DeleteIcon = styled.div`
     cursor: pointer;
 `;
 
+const selectStyles = {
+    control: (provided) => ({
+        ...provided,
+        borderRadius: '0',
+        fontFamily: 'Roboto, sans-serif'
+    })
+};
+
+
 /**
  * Represents a single todo task and associated controls.
  * Allows editing of task content, marking as completed, and deletion.
@@ -128,14 +146,18 @@ class Task extends React.Component {
         this.state = {
             editing: false,
             selectedOptions: [],
-            animateComplete: false
+            animateComplete: false,
+            taskContent: this.props.task.content
         };
 
         this.deleteTask = this.deleteTask.bind(this);
         this.handleClick = this.handleClick.bind(this);
         this.handleCompleteClick = this.handleCompleteClick.bind(this);
         this.handleChange = this.handleChange.bind(this);
+        this.handleContentChange = this.handleContentChange.bind(this);
         this.saveChanges = this.saveChanges.bind(this);
+
+        this.taskContentElement = React.createRef();
     }
 
     /**
@@ -159,7 +181,7 @@ class Task extends React.Component {
      * Click handler for entire Task component, manages editing state
      */
     async handleClick(event) {
-        event.stopPropagation();
+        // event.stopPropagation();
 
         if (!this.state.editing) {
             await this.setState({
@@ -167,7 +189,7 @@ class Task extends React.Component {
                 selectedOptions: this.props.task.tags.map((tag) => ({label: tag.name, value: tag.name}))
             });
 
-            this.contentElement.focus();
+            this.taskContentElement.current.focus();
         }
     }
 
@@ -214,12 +236,16 @@ class Task extends React.Component {
         });
     }
 
+    handleContentChange(event) {
+        this.setState({taskContent: event.target.value});
+    }
+
     /**
      * Save all changes made to task content and tags, send to server and update parent state via callback
      */
     async saveChanges() {
         // get data from content and tags fields, make server requests to save, use callback to update parent state
-        let newContent = this.contentElement.textContent;
+        let newContent = this.state.taskContent;
 
         try {
             let updatedTask = await Helpers.fetch(`/api/tasks/${this.props.task.id}`, {
@@ -256,12 +282,15 @@ class Task extends React.Component {
                     </CompleteIcon>
                 </CompleteIconContainer>
 
-                <ContentContainer
-                    contentEditable={this.state.editing}
-                    ref={(domNode) => {this.contentElement = domNode;}}
-                >
-                    {this.props.task.content}
-                </ContentContainer>
+
+                {this.state.editing ? (
+                    <StyledInput value={this.state.taskContent} onChange={this.handleContentChange} ref={this.taskContentElement} />
+                ) : (
+                    <ContentContainer>
+                        {this.props.task.content}
+                    </ContentContainer>
+                )}
+
 
                 {this.state.editing ? (
                     <StyledSelect
@@ -269,6 +298,7 @@ class Task extends React.Component {
                         options={this.props.tags.map(tag => ({label: tag.name, value: tag.name}))}
                         defaultValue={this.props.task.tags.map(tag => ({label: tag.name, value: tag.name}))}
                         onChange={this.handleChange}
+                        styles={selectStyles}
                     />
                 ) : (
                     <TagContainer>
@@ -292,15 +322,3 @@ class Task extends React.Component {
 }
 
 export default onClickOutside(Task);
-
-// TODO:
-    // completed button icon, tick w/ animation, AND the actual completion logic and state handling
-    // styling, borders around tasks to make it look like the table on FA site
-
-    // need to actually switch task content to a real text input when editing, dont use contenteditable. looks better, more control over
-// both cursor position and styles
-    // can potentially reuse the TaskForm component, but the issue is styles, since they're defined in the taskform component, how would
-// we change the sizing. or would we? why dont we just make the little taskforms look the same as the main one
-
-    // box shadows and/or change background colour on task editing
-        // maybe box shadow on hover, background change on focus/edit. like google tasks

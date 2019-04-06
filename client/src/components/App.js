@@ -11,12 +11,33 @@ import TagList from './TagList.js';
 
 const OuterContainer = styled.div`
     display: flex;
-    justify-content: center;
+    flex-direction: column;
+    align-items: center;
 `;
 
 const NavbarContainer = styled.div`
-    height: 45px;
+    display: flex;
+    justify-content: center;
+    height: 50px;
+    width: 100%;
     background-color: #1595AD;
+`;
+
+const Navbar = styled.div`
+    display: flex;
+    justify-content: space-between;
+    width: 50%;
+`;
+
+const Logo = styled.h1`
+    font-family: 'Kristi', cursive;
+    font-size: 38px;
+    color: #FAFAFA;
+    margin: 0;
+`;
+
+const LogoutButton = styled.button`
+    align-self: center;
 `;
 
 const AppContainer = styled.div`
@@ -180,11 +201,15 @@ class App extends React.Component {
     render() {
         return (
             <React.Fragment>
-                <NavbarContainer>
-                    <button onClick={this.handleLogout}>Logout</button>
-                </NavbarContainer>
-
                 <OuterContainer>
+                    <NavbarContainer>
+                        <Navbar>
+                            <Logo>Doozle</Logo>
+
+                            <LogoutButton onClick={this.handleLogout}>Logout</LogoutButton>
+                        </Navbar>
+                    </NavbarContainer>
+
                     <AppContainer>
                         <TaskForm
                             {...this.props}
@@ -246,3 +271,6 @@ class App extends React.Component {
 }
 
 export default requireAuth(App);
+
+// TODO:
+    // menu dropdown or something in the top right corner, hide logout button basically
