@@ -36,6 +36,31 @@ class Helpers {
             throw error;
         }
     }
+
+    /**
+     * Checks if two Dates are on the same day.
+     */
+    static isSameDay(d1, d2) {
+        try {
+            return (
+                d1.getFullYear() === d2.getFullYear() &&
+                d1.getMonth() === d2.getMonth() &&
+                d1.getDate() === d2.getDate()
+            );
+        } catch (error) {
+            return false;
+        }
+    }
+
+    static getDayofWeekName(date) {
+        const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday']
+        return days[date.getDay()];
+    }
+
+    static getMonthName(date) {
+        const months = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
+        return months[date.getMonth()];
+    }
 }
 
 export default Helpers;

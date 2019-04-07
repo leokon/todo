@@ -78,7 +78,7 @@ const CompleteIcon = styled.svg`
     stroke-width: 2;
     stroke: #FAFAFA;
     stroke-miterlimit: 10;
-    box-shadow: inset 0px 0px 2px #1595AD;
+    box-shadow: ${(props) => props.task.completed ? 'inset 0px 0px 0px 30px #1595AD;' : 'inset 0px 0px 2px #1595AD;'}
     animation: ${props => props.animateComplete ? 'fill .4s ease-in-out .4s forwards, scale .3s ease-in-out .8s both' : 'none'};
     
     & .circle {
@@ -183,7 +183,7 @@ class Task extends React.Component {
     async handleClick(event) {
         // event.stopPropagation();
 
-        if (!this.state.editing) {
+        if (!this.state.editing && this.props.editable) {
             await this.setState({
                 editing: true,
                 selectedOptions: this.props.task.tags.map((tag) => ({label: tag.name, value: tag.name}))
@@ -276,9 +276,13 @@ class Task extends React.Component {
                 onMouseLeave={() => {this.setState({hovering: false})}}
             >
                 <CompleteIconContainer>
-                    <CompleteIcon viewBox="0 0 52 52" animateComplete={this.state.animateComplete} onClick={this.handleCompleteClick}>
-                        <circle className="circle" cx="26" cy="26" r="25" fill="none" />
-                        <path className="path" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" />
+                    <CompleteIcon
+                        viewBox="0 0 52 52"
+                        task={this.props.task}
+                        animateComplete={this.state.animateComplete}
+                        onClick={this.props.editable ? this.handleCompleteClick : null}>
+                            <circle className="circle" cx="26" cy="26" r="25" fill="none" />
+                            <path className="path" fill="none" d="M14.1 27.2l7.1 7.2 16.7-16.8" />
                     </CompleteIcon>
                 </CompleteIconContainer>
 
@@ -322,3 +326,6 @@ class Task extends React.Component {
 }
 
 export default onClickOutside(Task);
+
+// TODO:
+    // add new tasks to the TOP of the task list, not the bottom. server side. position should be 1 on creation, shuffle all others back

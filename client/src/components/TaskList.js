@@ -79,6 +79,7 @@ class TaskList extends React.Component {
                                                     key={task.id}
                                                     task={task}
                                                     tags={this.props.tags}
+                                                    editable={true}
                                                     handleDeleteTask={this.props.handleDeleteTask}
                                                     handleUpdateTask={this.props.handleUpdateTask}
                                                     handleTaskCompleted={this.props.handleTaskCompleted}

@@ -6,6 +6,7 @@ import Helpers from '../helpers.js';
 import Auth from '../auth.js';
 import requireAuth from './RequireAuth.js';
 import TaskList from './TaskList.js';
+import CompletedTaskList from './CompletedTaskList.js';
 import TaskForm from './TaskForm.js';
 import TagList from './TagList.js';
 
@@ -237,19 +238,14 @@ class App extends React.Component {
                                     handleUpdateTask={this.handleUpdateTask}
                                 />
                             ) : (
-                                <TaskList
+                                <CompletedTaskList
                                     {...this.props}
                                     tasks={
                                         this.state.tasks
                                             .filter((task) => (task.completed))
                                             .sort((a, b) => (new Date(b.completed_at) - new Date(a.completed_at)))
                                     }
-                                    filterTags={this.state.filterTags}
-                                    tags={this.state.tags}
-                                    error={this.state.error}
-                                    draggable={false}
                                     handleDeleteTask={this.handleDeleteTask}
-                                    handleUpdateTask={this.handleUpdateTask}
                                 />
                             )}
                         </div>
