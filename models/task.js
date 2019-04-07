@@ -73,10 +73,18 @@ async function save(task) {
             );
         } else {
             // task doesn't already exist, create
-            return await db.one(
+            let createdTask = await db.one(
                 'INSERT INTO tasks (user_id, content, position, completed, completed_at) VALUES ($1, $2, $3, $4, $5) RETURNING *',
-                [task.user_id, task.content, task.position, task.completed, task.completed_at]
+                [task.user_id, task.content, 0, task.completed, task.completed_at]
             );
+
+            // shuffle all existing tasks for this user back in the position queue
+            await db.none(
+                'UPDATE tasks SET position = position + 1 WHERE user_id = $1 AND id != $2',
+                [task.user_id, createdTask.id]
+            );
+
+            return createdTask;
         }
     } catch (error) {
         console.log(error);

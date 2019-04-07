@@ -106,7 +106,7 @@ class App extends React.Component {
      * Updates task and tag array state in response to a new task being created.
      */
     async handleTaskCreated(task) {
-        this.setState({tasks: [...this.state.tasks, task]});
+        this.setState({tasks: [task, ...this.state.tasks]});
 
         // merge this task's tags into state, without creating duplicates
         this.setState({
@@ -270,3 +270,5 @@ export default requireAuth(App);
 
 // TODO:
     // menu dropdown or something in the top right corner, hide logout button basically
+
+    // dark mode??? or just change the default design to dark colours
