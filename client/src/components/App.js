@@ -1,6 +1,8 @@
 import React from 'react';
 import styled from 'styled-components';
 import _ from 'underscore';
+import {FontAwesomeIcon} from '@fortawesome/react-fontawesome';
+import {faTimes} from '@fortawesome/free-solid-svg-icons';
 
 import Helpers from '../helpers.js';
 import Auth from '../auth.js';
@@ -50,6 +52,34 @@ const AppContainer = styled.div`
     margin-top: 20px;
 `;
 
+const UndoPrompt = styled.div`
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    margin: 24px;
+    padding: 24px;
+    background-color: black;
+    color: #FAFAFA;
+    box-shadow: 0px 2px 3px rgba(0, 0, 0, 0.4);
+
+    & > svg {
+        cursor: pointer;
+    }
+`;
+
+const UndoPromptText = styled.span`
+    margin-right: 25px;
+    font-size: 15px;
+`;
+
+const UndoPromptButton = styled.span`
+    text-transform: uppercase;
+    color: #1595ad;
+    font-weight: bold;
+    cursor: pointer;
+    margin-right: 28px;
+`;
+
 class App extends React.Component {
     constructor(props) {
         super(props);
@@ -59,6 +89,9 @@ class App extends React.Component {
             draftTags: [],
             filterTags: [],
             currentTasksView: true,
+            undoContent: null,
+            undoType: null,
+            confirmDelete: true,
             error: null
         };
 
@@ -71,6 +104,9 @@ class App extends React.Component {
         this.handleFilterTagsChanged = this.handleFilterTagsChanged.bind(this);
         this.handleDeleteTask = this.handleDeleteTask.bind(this);
         this.handleUpdateTask = this.handleUpdateTask.bind(this);
+        this.handleUndoComplete = this.handleUndoComplete.bind(this);
+        this.handleUndoDelete = this.handleUndoDelete.bind(this);
+        this.handleRejectUndo = this.handleRejectUndo.bind(this);
         this.Auth = new Auth();
     }
 
@@ -139,7 +175,17 @@ class App extends React.Component {
         tasksCopy[updateIndex] = completedTask;
 
         this.setState({
-            tasks: tasksCopy
+            tasks: tasksCopy,
+            undoContent: completedTask,
+            undoType: 'completed'
+        });
+
+        let undoTimer = setTimeout(() => {
+            this.setState({undoContent: null, undoType: null});
+        }, 5000);
+
+        this.setState({
+            undoTimer: undoTimer
         });
     }
 
@@ -170,14 +216,41 @@ class App extends React.Component {
     /**
      * Updates task array state in response to a task being deleted.
      */
-    handleDeleteTask(task) {
+    async handleDeleteTask(task) {
         let removeIndex = this.state.tasks.findIndex((t) => (task.id === t.id));
 
+        let oldTasks = Array.from(this.state.tasks);
         let newTasks = this.state.tasks.concat();
         newTasks.splice(removeIndex, 1);
 
+        // provisional update of state to reflect deletion before request has been sent
+        await this.setState({
+            tasks: newTasks,
+            undoContent: oldTasks,
+            undoType: 'deleted'
+        });
+
+        // if undo button has been pressed, don't send deletion request and revert state instead
+        let undoTimer = setTimeout(async () => {
+            if (this.state.confirmDelete) {
+                await Helpers.fetch(`/api/tasks/${task.id}`, {
+                    method: 'DELETE'
+                });
+            } else {
+                await this.setState({
+                    tasks: this.state.undoContent,
+                });
+            }
+
+            await this.setState({
+                undoContent: null,
+                undoType: null,
+                confirmDelete: true
+            });
+        }, 5000);
+
         this.setState({
-            tasks: newTasks
+            undoTimer: undoTimer
         });
     }
 
@@ -192,6 +265,55 @@ class App extends React.Component {
         this.setState({
             tasks: tasksCopy
         });
+    }
+
+    /**
+     * Handles undoing completion of a task, makes a request to mark the task as uncompleted and updates state.
+     */
+    async handleUndoComplete() {
+        try {
+            let uncompletedTask = await Helpers.fetch(`/api/tasks/${this.state.undoContent.id}`, {
+                method: 'PUT',
+                body: JSON.stringify({
+                    completed: 'false'
+                })
+            });
+
+            let tasksCopy = Array.from(this.state.tasks);
+            let updateIndex = tasksCopy.findIndex((task) => (task.id === uncompletedTask.id));
+            tasksCopy[updateIndex] = uncompletedTask;
+            this.setState({
+                tasks: tasksCopy,
+                undoContent: null,
+                undoType: null
+            });
+        } catch (error) {
+            console.log(error);
+        }
+    }
+
+    /**
+     * Handles undoing deletion of a task. Sets a flag to stop deletion request from being sent after undo timeout finishes, and updates
+     * state to reflect the task not being deleted.
+     */
+    handleUndoDelete() {
+        this.setState({
+            confirmDelete: false,
+            tasks: this.state.undoContent,
+            undoType: null
+        });
+    }
+
+    /**
+     * Handles a user closing the undo prompt, resets state
+     */
+    handleRejectUndo() {
+        this.setState({
+            undoContent: null,
+            undoType: null
+        });
+
+        clearTimeout(this.state.undoTimer);
     }
 
     handleLogout() {
@@ -245,6 +367,7 @@ class App extends React.Component {
                                             .filter((task) => (task.completed))
                                             .sort((a, b) => (new Date(b.completed_at) - new Date(a.completed_at)))
                                     }
+                                    filterTags={this.state.filterTags}
                                     handleDeleteTask={this.handleDeleteTask}
                                 />
                             )}
@@ -260,6 +383,25 @@ class App extends React.Component {
                             />
                         </div>
                     </AppContainer>
+
+                    {this.state.undoType !== null &&
+                        <UndoPrompt>
+                            <UndoPromptText>
+                                {this.state.undoType === 'completed' &&
+                                'Task marked as completed.'
+                                }
+                                {this.state.undoType === 'deleted' &&
+                                'Task deleted.'
+                                }
+                            </UndoPromptText>
+                            <UndoPromptButton
+                                onClick={this.state.undoType === 'completed' ? this.handleUndoComplete : this.handleUndoDelete}
+                            >
+                                Undo
+                            </UndoPromptButton>
+                            <FontAwesomeIcon icon={faTimes} onClick={this.handleRejectUndo} />
+                        </UndoPrompt>
+                    }
                 </OuterContainer>
             </React.Fragment>
         );
@@ -267,8 +409,3 @@ class App extends React.Component {
 }
 
 export default requireAuth(App);
-
-// TODO:
-    // menu dropdown or something in the top right corner, hide logout button basically
-
-    // dark mode??? or just change the default design to dark colours

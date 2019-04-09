@@ -34,7 +34,7 @@ class CompletedTaskList extends React.Component {
      * with the tasks.
      * @returns {{blockDates: Array, taskBlocks: Array}}
      */
-    generateTaskBlocks() {
+    generateTaskBlocks(tasks) {
         let taskBlocks = [];
         let blockDates = [];
         let blockIndex = -1;
@@ -60,7 +60,18 @@ class CompletedTaskList extends React.Component {
     }
 
     render() {
-        let {blockDates, taskBlocks} = this.generateTaskBlocks();
+        let filteredTasks = this.props.tasks.filter((task) => {
+            for (let filterTag of this.props.filterTags) {
+                // if this filter tag isn't in the current task's tags, don't allow it
+                if (!(task.tags.some((tag) => (tag.id === filterTag.id)))) {
+                    return false;
+                }
+            }
+
+            return true;
+        });
+
+        let {blockDates, taskBlocks} = this.generateTaskBlocks(filteredTasks);
 
         return (
             <div>
@@ -96,12 +107,3 @@ class CompletedTaskList extends React.Component {
 export default CompletedTaskList;
 
 // TODO:
-    // task list in a card layout, tasks grouped by completion date
-    // no editing allowed, no dragging, no completion button, deletion IS allowed
-
-    // implement a better way to switch between completed and not completed task lists, but not in this component
-
-    // NO UNCOMPLETING. instead, just do the undo thing. fake it, if the user clicks undo, just make another request setting completed
-// to false, update state.
-    // also implement UNDO on deletion, both here for completed tasks and normal incomplete tasks. just use a timeout, client waits to
-// send the delete request for x seconds, doesn't send if an undo flag is set in the meantime

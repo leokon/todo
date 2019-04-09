@@ -161,15 +161,11 @@ class Task extends React.Component {
     }
 
     /**
-     * Make server request to delete task and notify parent to update local state
+     * Notify parent to trigger undo flow and update local state
      */
     async deleteTask(event) {
         try {
             event.stopPropagation();
-
-            await Helpers.fetch(`/api/tasks/${this.props.task.id}`, {
-                method: 'DELETE'
-            });
 
             this.props.handleDeleteTask(this.props.task);
         } catch (error) {
@@ -326,6 +322,3 @@ class Task extends React.Component {
 }
 
 export default onClickOutside(Task);
-
-// TODO:
-    // add new tasks to the TOP of the task list, not the bottom. server side. position should be 1 on creation, shuffle all others back
