@@ -6,16 +6,31 @@ import {faTimes} from '@fortawesome/free-solid-svg-icons';
 
 import Helpers from '../helpers.js';
 import Auth from '../auth.js';
+import Views from '../views.js';
 import requireAuth from './RequireAuth.js';
 import TaskList from './TaskList.js';
 import CompletedTaskList from './CompletedTaskList.js';
 import TaskForm from './TaskForm.js';
 import TagList from './TagList.js';
+import Menu from './Menu.js';
 
 const OuterContainer = styled.div`
     display: flex;
     flex-direction: column;
     align-items: center;
+`;
+
+const InnerContainer = styled.div`
+    width: 60%;
+    display: flex;
+    margin-top: 40px;
+`;
+
+const AppContainer = styled.div`
+    flex-basis: 75%;
+    padding-left: 25px;
+    padding-right: 25px;
+    box-sizing: border-box;
 `;
 
 const NavbarContainer = styled.div`
@@ -43,14 +58,6 @@ const LogoutButton = styled.button`
     align-self: center;
 `;
 
-const AppContainer = styled.div`
-    width: 50%;
-    background-color: #FFFFFF;
-    border: 1px solid #CDCDCD;
-    padding-left: 25px;
-    padding-right: 25px;
-    margin-top: 20px;
-`;
 
 const UndoPrompt = styled.div`
     position: fixed;
@@ -88,13 +95,14 @@ class App extends React.Component {
             tags: [],
             draftTags: [],
             filterTags: [],
-            currentTasksView: true,
+            currentView: Views.tasks,
             undoContent: null,
             undoType: null,
             confirmDelete: true,
             error: null
         };
 
+        this.handleViewChange = this.handleViewChange.bind(this);
         this.handleLogout = this.handleLogout.bind(this);
         this.handleTaskCreated = this.handleTaskCreated.bind(this);
         this.handleTaskMoved = this.handleTaskMoved.bind(this);
@@ -147,6 +155,12 @@ class App extends React.Component {
         // merge this task's tags into state, without creating duplicates
         this.setState({
             tags: _.uniq(_.union(this.state.tags, task.tags), false, _.property('id'))
+        });
+    }
+
+    handleViewChange(newView) {
+        this.setState({
+            currentView: newView
         });
     }
 
@@ -333,56 +347,58 @@ class App extends React.Component {
                         </Navbar>
                     </NavbarContainer>
 
-                    <AppContainer>
-                        <TaskForm
-                            {...this.props}
-                            tags={this.state.tags}
-                            draftTags={this.state.draftTags}
-                            handleTaskCreated={this.handleTaskCreated}
-                            handleDraftTagCreated={this.handleDraftTagCreated}
-                        />
+                    <InnerContainer>
+                        <Menu currentView={this.state.currentView} tags={this.state.tags} handleViewChange={this.handleViewChange} />
 
-                        <div>
-                            <button onClick={() => (this.setState({currentTasksView: !this.state.currentTasksView}))}>Switch View</button>
-
-                            {this.state.currentTasksView ? (
-                                <TaskList
-                                    {...this.props}
-                                    tasks={this.state.tasks.filter((task) => (!task.completed))}
-                                    fullTasks={this.state.tasks}
-                                    filterTags={this.state.filterTags}
-                                    tags={this.state.tags}
-                                    error={this.state.error}
-                                    draggable={true}
-                                    handleTaskMoved={this.handleTaskMoved}
-                                    handleTaskCompleted={this.handleTaskCompleted}
-                                    handleDeleteTask={this.handleDeleteTask}
-                                    handleUpdateTask={this.handleUpdateTask}
-                                />
-                            ) : (
-                                <CompletedTaskList
-                                    {...this.props}
-                                    tasks={
-                                        this.state.tasks
-                                            .filter((task) => (task.completed))
-                                            .sort((a, b) => (new Date(b.completed_at) - new Date(a.completed_at)))
-                                    }
-                                    filterTags={this.state.filterTags}
-                                    handleDeleteTask={this.handleDeleteTask}
-                                />
-                            )}
-                        </div>
-
-                        <div>
-                            <br/><br/><br/>
-                            <TagList
+                        <AppContainer>
+                            <TaskForm
                                 {...this.props}
                                 tags={this.state.tags}
-                                handleTagCreated={this.handleTagCreated}
-                                handleFilterTagsChanged={this.handleFilterTagsChanged}
+                                draftTags={this.state.draftTags}
+                                handleTaskCreated={this.handleTaskCreated}
+                                handleDraftTagCreated={this.handleDraftTagCreated}
                             />
-                        </div>
-                    </AppContainer>
+
+                            <div>
+                                {this.state.currentView === Views.tasks ? (
+                                    <TaskList
+                                        {...this.props}
+                                        tasks={this.state.tasks.filter((task) => (!task.completed))}
+                                        fullTasks={this.state.tasks}
+                                        filterTags={this.state.filterTags}
+                                        tags={this.state.tags}
+                                        error={this.state.error}
+                                        draggable={true}
+                                        handleTaskMoved={this.handleTaskMoved}
+                                        handleTaskCompleted={this.handleTaskCompleted}
+                                        handleDeleteTask={this.handleDeleteTask}
+                                        handleUpdateTask={this.handleUpdateTask}
+                                    />
+                                ) : (
+                                    <CompletedTaskList
+                                        {...this.props}
+                                        tasks={
+                                            this.state.tasks
+                                                .filter((task) => (task.completed))
+                                                .sort((a, b) => (new Date(b.completed_at) - new Date(a.completed_at)))
+                                        }
+                                        filterTags={this.state.filterTags}
+                                        handleDeleteTask={this.handleDeleteTask}
+                                    />
+                                )}
+                            </div>
+
+                            <div>
+                                <br/><br/><br/>
+                                <TagList
+                                    {...this.props}
+                                    tags={this.state.tags}
+                                    handleTagCreated={this.handleTagCreated}
+                                    handleFilterTagsChanged={this.handleFilterTagsChanged}
+                                />
+                            </div>
+                        </AppContainer>
+                    </InnerContainer>
 
                     {this.state.undoType !== null &&
                         <UndoPrompt>
@@ -409,3 +425,23 @@ class App extends React.Component {
 }
 
 export default requireAuth(App);
+
+// TODO:
+    // menu dropdown or something in the top right corner, hide logout button basically
+
+    // dark mode??? or just change the default design to dark colours
+
+    // URLs, paths like /completed, takes the user directly to their completed tasks page, maybe? is it necessary?
+
+    // empty states, for when there are no tasks, no completed tasks, etc
+    // loading states, for things like login forms, etc
+
+    // implement a better way to switch between completed and not completed task lists
+
+    // menu column, but have it offset to the left, so main app column is still centered
+        // make menu items have left border when they're selected, currently displayed, not on hover. maybe do something else on hover?
+// or nothing. OR just change the color of icon+text when selected
+
+    // bug in task deletion, hover doesnt trigger until mouse is moved out and back in when a task is removed and the next one moves up
+
+    // split navbar into seperate component, so that we can easily display it on register and login screens too

@@ -11,11 +11,11 @@ import Tag from './Tag.js';
 const Container = styled.div`
     display: flex;
     align-items: center;
-    background-color: #FAFAFA;
-    margin-top: 4px;
-    margin-bottom: 4px;
+    background-color: #FFFFFF;
+    margin-top: 8px;
+    margin-bottom: 8px;
     
-    box-shadow: ${(props) => props.editing ? '0px 2px 7px -3px rgba(0,0,0,0.75)' : 'none'};
+    box-shadow: ${(props) => props.editing ? '0px 2px 7px -3px rgba(0,0,0,0.75)' : '0px 1px 1px 0px rgba(0,0,0,0.1)'};
     
     &:hover, &:focus, &:active {
         box-shadow: 0px 2px 7px -3px rgba(0,0,0,0.75);
@@ -66,7 +66,7 @@ const StyledSelect = styled(Select)`
 
 const CompleteIconContainer = styled.div`
     padding: 0.8rem;
-    border-right: 2px solid white;
+    border-right: 4px solid #FAFAFA;
 `;
 
 const CompleteIcon = styled.svg`

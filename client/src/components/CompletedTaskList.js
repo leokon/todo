@@ -105,5 +105,3 @@ class CompletedTaskList extends React.Component {
 }
 
 export default CompletedTaskList;
-
-// TODO:
