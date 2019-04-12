@@ -8,6 +8,7 @@ import Helpers from '../helpers.js';
 import Auth from '../auth.js';
 import Views from '../views.js';
 import requireAuth from './RequireAuth.js';
+import Navbar from './Navbar.js';
 import TaskList from './TaskList.js';
 import CompletedTaskList from './CompletedTaskList.js';
 import TaskForm from './TaskForm.js';
@@ -31,32 +32,6 @@ const AppContainer = styled.div`
     padding-right: 25px;
     box-sizing: border-box;
 `;
-
-const NavbarContainer = styled.div`
-    display: flex;
-    justify-content: center;
-    height: 50px;
-    width: 100%;
-    background-color: #1595AD;
-`;
-
-const Navbar = styled.div`
-    display: flex;
-    justify-content: space-between;
-    width: 50%;
-`;
-
-const Logo = styled.h1`
-    font-family: 'Kristi', cursive;
-    font-size: 38px;
-    color: #FAFAFA;
-    margin: 0;
-`;
-
-const LogoutButton = styled.button`
-    align-self: center;
-`;
-
 
 const UndoPrompt = styled.div`
     position: fixed;
@@ -102,7 +77,6 @@ class App extends React.Component {
         };
 
         this.handleViewChange = this.handleViewChange.bind(this);
-        this.handleLogout = this.handleLogout.bind(this);
         this.handleTaskCreated = this.handleTaskCreated.bind(this);
         this.handleTaskMoved = this.handleTaskMoved.bind(this);
         this.handleTaskCompleted = this.handleTaskCompleted.bind(this);
@@ -329,24 +303,13 @@ class App extends React.Component {
         clearTimeout(this.state.undoTimer);
     }
 
-    handleLogout() {
-        this.Auth.logout();
-        this.props.history.replace('/login');
-    }
-
     render() {
         document.title = `Doozle (${this.state.tasks.filter((task) => (!task.completed)).length})`;
 
         return (
             <React.Fragment>
                 <OuterContainer>
-                    <NavbarContainer>
-                        <Navbar>
-                            <Logo>Doozle</Logo>
-
-                            <LogoutButton onClick={this.handleLogout}>Logout</LogoutButton>
-                        </Navbar>
-                    </NavbarContainer>
+                    <Navbar {...this.props} />
 
                     <InnerContainer>
                         <Menu
@@ -434,14 +397,6 @@ export default requireAuth(App);
     // empty states, for when there are no tasks, no completed tasks, etc
     // loading states, for things like login forms, etc
 
-    // implement a better way to switch between completed and not completed task lists
-
-    // menu column, but have it offset to the left, so main app column is still centered
-        // make menu items have left border when they're selected, currently displayed, not on hover. maybe do something else on hover?
-// or nothing. OR just change the color of icon+text when selected
-
     // bug in task deletion, hover doesnt trigger until mouse is moved out and back in when a task is removed and the next one moves up
-
-    // split navbar into seperate component, so that we can easily display it on register and login screens too
 
     // tag deletion functionality, from menu. e.g. click on a tag and an x appears, allows deletion

@@ -1,6 +1,7 @@
 import React from 'react';
 
 import Auth from '../auth.js';
+import Navbar from './Navbar.js';
 
 class Login extends React.Component {
     constructor(props) {
@@ -45,18 +46,22 @@ class Login extends React.Component {
 
     render() {
         return (
-            <div>
-                Login Form
-                {this.state.error &&
+            <React.Fragment>
+                <Navbar {...this.props} />
+
+                <div>
+                    Login Form
+                    {this.state.error &&
                     <div>Invalid login details.</div>
-                }
-                <form onSubmit={this.handleSubmit}>
-                    <input type="email" name="email" value={this.state.email} onChange={this.handleChange} />
-                    <input type="password" name="password" value={this.state.password} onChange={this.handleChange} />
-                    <input type="submit" value="Submit" />
-                </form>
-                <button onClick={this.handleRegister}>Register</button>
-            </div>
+                    }
+                    <form onSubmit={this.handleSubmit}>
+                        <input type="email" name="email" value={this.state.email} onChange={this.handleChange} />
+                        <input type="password" name="password" value={this.state.password} onChange={this.handleChange} />
+                        <input type="submit" value="Submit" />
+                    </form>
+                    <button onClick={this.handleRegister}>Register</button>
+                </div>
+            </React.Fragment>
         );
     }
 }

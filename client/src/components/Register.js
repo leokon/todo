@@ -1,5 +1,7 @@
 import React from 'react';
+
 import Auth from '../auth.js';
+import Navbar from './Navbar.js';
 
 class Register extends React.Component {
     constructor(props) {
@@ -33,17 +35,21 @@ class Register extends React.Component {
 
     render() {
         return (
-            <div>
-                Register Form
-                {this.state.error &&
+            <React.Fragment>
+                <Navbar {...this.props} />
+
+                <div>
+                    Register Form
+                    {this.state.error &&
                     <div>Invalid registration details.</div>
-                }
-                <form onSubmit={this.handleSubmit}>
-                    <input type="email" name="email" value={this.state.email} onChange={this.handleChange} />
-                    <input type="password" name="password" value={this.state.password} onChange={this.handleChange} />
-                    <input type="submit" value="Submit" />
-                </form>
-            </div>
+                    }
+                    <form onSubmit={this.handleSubmit}>
+                        <input type="email" name="email" value={this.state.email} onChange={this.handleChange} />
+                        <input type="password" name="password" value={this.state.password} onChange={this.handleChange} />
+                        <input type="submit" value="Submit" />
+                    </form>
+                </div>
+            </React.Fragment>
         );
     }
 }
