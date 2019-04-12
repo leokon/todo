@@ -11,7 +11,6 @@ import requireAuth from './RequireAuth.js';
 import TaskList from './TaskList.js';
 import CompletedTaskList from './CompletedTaskList.js';
 import TaskForm from './TaskForm.js';
-import TagList from './TagList.js';
 import Menu from './Menu.js';
 
 const OuterContainer = styled.div`
@@ -336,6 +335,8 @@ class App extends React.Component {
     }
 
     render() {
+        document.title = `Doozle (${this.state.tasks.filter((task) => (!task.completed)).length})`;
+
         return (
             <React.Fragment>
                 <OuterContainer>
@@ -348,7 +349,14 @@ class App extends React.Component {
                     </NavbarContainer>
 
                     <InnerContainer>
-                        <Menu currentView={this.state.currentView} tags={this.state.tags} handleViewChange={this.handleViewChange} />
+                        <Menu
+                            currentView={this.state.currentView}
+                            tasks={this.state.tasks}
+                            tags={this.state.tags}
+                            handleViewChange={this.handleViewChange}
+                            handleTagCreated={this.handleTagCreated}
+                            handleFilterTagsChanged={this.handleFilterTagsChanged}
+                        />
 
                         <AppContainer>
                             <TaskForm
@@ -386,16 +394,6 @@ class App extends React.Component {
                                         handleDeleteTask={this.handleDeleteTask}
                                     />
                                 )}
-                            </div>
-
-                            <div>
-                                <br/><br/><br/>
-                                <TagList
-                                    {...this.props}
-                                    tags={this.state.tags}
-                                    handleTagCreated={this.handleTagCreated}
-                                    handleFilterTagsChanged={this.handleFilterTagsChanged}
-                                />
                             </div>
                         </AppContainer>
                     </InnerContainer>
@@ -445,3 +443,5 @@ export default requireAuth(App);
     // bug in task deletion, hover doesnt trigger until mouse is moved out and back in when a task is removed and the next one moves up
 
     // split navbar into seperate component, so that we can easily display it on register and login screens too
+
+    // tag deletion functionality, from menu. e.g. click on a tag and an x appears, allows deletion

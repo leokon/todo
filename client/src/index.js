@@ -14,7 +14,7 @@ import Register from './components/Register.js';
 const GlobalStyle = createGlobalStyle`
     body {
         font-family: 'Roboto', sans-serif;
-        background-color: #FAFAFA;
+        background-color: #f7f7f7;
         color: #222222;
         margin: 0;
         box-sizing: border-box;

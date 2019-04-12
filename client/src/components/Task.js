@@ -15,10 +15,10 @@ const Container = styled.div`
     margin-top: 8px;
     margin-bottom: 8px;
     
-    box-shadow: ${(props) => props.editing ? '0px 2px 7px -3px rgba(0,0,0,0.75)' : '0px 1px 1px 0px rgba(0,0,0,0.1)'};
+    box-shadow: ${(props) => props.editing ? '0px 2px 6px -3px rgba(0,0,0,0.45)' : '2px 2px 3px 0px rgba(0,0,0,0.05)'};
     
     &:hover, &:focus, &:active {
-        box-shadow: 0px 2px 7px -3px rgba(0,0,0,0.75);
+        box-shadow: 0px 2px 7px -3px rgba(0,0,0,0.45);
     }
     
     animation: ${props => props.animateComplete ? 'slide-out-right 0.6s cubic-bezier(0.550, 0.085, 0.680, 0.530) 1s both' : 'none'};
