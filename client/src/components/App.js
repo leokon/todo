@@ -73,7 +73,8 @@ class App extends React.Component {
             undoContent: null,
             undoType: null,
             confirmDelete: true,
-            error: null
+            error: null,
+            loaded: false
         };
 
         this.handleViewChange = this.handleViewChange.bind(this);
@@ -108,7 +109,7 @@ class App extends React.Component {
             let tags = await Helpers.fetch('/api/tags', {
                 method: 'GET'
             });
-            this.setState({tags: tags, draftTags: tags});
+            this.setState({tags: tags, draftTags: tags, loaded: true});
         } catch (error) {
             if (error.response.status === 401) {
                 this.props.history.replace('/login');
@@ -127,7 +128,8 @@ class App extends React.Component {
 
         // merge this task's tags into state, without creating duplicates
         this.setState({
-            tags: _.uniq(_.union(this.state.tags, task.tags), false, _.property('id'))
+            tags: _.uniq(_.union(this.state.tags, task.tags), false, _.property('id')),
+            currentView: Views.tasks
         });
     }
 
@@ -304,6 +306,10 @@ class App extends React.Component {
     }
 
     render() {
+        if (!this.state.loaded) {
+            return null;
+        }
+
         let incompleteTaskCount = this.state.tasks.filter((task) => (!task.completed)).length;
         if (incompleteTaskCount > 0) {
             document.title = `Doozle (${incompleteTaskCount})`;
@@ -397,7 +403,6 @@ export default requireAuth(App);
 
     // URLs, paths like /completed, takes the user directly to their completed tasks page, maybe? is it necessary?
 
-    // empty states, for when there are no tasks, no completed tasks, etc
     // loading states, for things like login forms, etc
 
     // bug in task deletion, hover doesnt trigger until mouse is moved out and back in when a task is removed and the next one moves up
@@ -407,5 +412,3 @@ export default requireAuth(App);
     // bug where you cant create a tag via create task dropdown if no tags already exist
     // bug where tag filtering doesn't work in completed tasks
     // add error handling to forms, even just client side. e.g. flash red outline when there's no task text, no input, tag name too long
-
-    // creating a task while on the completed tasks (or stats) view should switch the user to the tasks screen when created
