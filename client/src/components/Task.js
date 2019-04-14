@@ -12,7 +12,6 @@ const Container = styled.div`
     display: flex;
     align-items: center;
     background-color: #FFFFFF;
-    margin-top: 8px;
     margin-bottom: 8px;
     
     box-shadow: ${(props) => props.editing ? '0px 2px 6px -3px rgba(0,0,0,0.45)' : '2px 2px 3px 0px rgba(0,0,0,0.05)'};

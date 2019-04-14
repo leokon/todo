@@ -169,7 +169,7 @@ class App extends React.Component {
 
         let undoTimer = setTimeout(() => {
             this.setState({undoContent: null, undoType: null});
-        }, 5000);
+        }, 3000);
 
         this.setState({
             undoTimer: undoTimer
@@ -234,7 +234,7 @@ class App extends React.Component {
                 undoType: null,
                 confirmDelete: true
             });
-        }, 5000);
+        }, 3000);
 
         this.setState({
             undoTimer: undoTimer
@@ -304,7 +304,12 @@ class App extends React.Component {
     }
 
     render() {
-        document.title = `Doozle (${this.state.tasks.filter((task) => (!task.completed)).length})`;
+        let incompleteTaskCount = this.state.tasks.filter((task) => (!task.completed)).length;
+        if (incompleteTaskCount > 0) {
+            document.title = `Doozle (${incompleteTaskCount})`;
+        } else {
+            document.title = 'Doozle';
+        }
 
         return (
             <React.Fragment>
@@ -390,8 +395,6 @@ export default requireAuth(App);
 // TODO:
     // menu dropdown or something in the top right corner, hide logout button basically
 
-    // dark mode??? or just change the default design to dark colours
-
     // URLs, paths like /completed, takes the user directly to their completed tasks page, maybe? is it necessary?
 
     // empty states, for when there are no tasks, no completed tasks, etc
@@ -400,3 +403,9 @@ export default requireAuth(App);
     // bug in task deletion, hover doesnt trigger until mouse is moved out and back in when a task is removed and the next one moves up
 
     // tag deletion functionality, from menu. e.g. click on a tag and an x appears, allows deletion
+
+    // bug where you cant create a tag via create task dropdown if no tags already exist
+    // bug where tag filtering doesn't work in completed tasks
+    // add error handling to forms, even just client side. e.g. flash red outline when there's no task text, no input, tag name too long
+
+    // creating a task while on the completed tasks (or stats) view should switch the user to the tasks screen when created

@@ -24,6 +24,13 @@ const CardDate = styled.div`
 
 const CardCounter = styled.div``;
 
+const EmptyStateContainer = styled.div`
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 250px;
+`;
+
 class CompletedTaskList extends React.Component {
     constructor(props) {
         super(props);
@@ -74,32 +81,38 @@ class CompletedTaskList extends React.Component {
         let {blockDates, taskBlocks} = this.generateTaskBlocks(filteredTasks);
 
         return (
-            <div>
-                {blockDates.map((date, index) => {
-                    return (
-                        <Card key={index}>
-                            <CardHeader>
-                                <CardDate>
-                                    {`${Helpers.getDayofWeekName(date)} ${Helpers.getMonthName(date)} ${date.getDate()}, ${date.getFullYear()}`}
-                                </CardDate>
-                                <CardCounter>
-                                    Completed {taskBlocks[index].length} task{taskBlocks[index].length > 1 ? 's' : ''}
-                                </CardCounter>
-                            </CardHeader>
+            <React.Fragment>
+                {this.props.tasks.length > 0 ? (
+                    <div>
+                        {blockDates.map((date, index) => {
+                            return (
+                                <Card key={index}>
+                                    <CardHeader>
+                                        <CardDate>
+                                            {`${Helpers.getDayofWeekName(date)} ${Helpers.getMonthName(date)} ${date.getDate()}, ${date.getFullYear()}`}
+                                        </CardDate>
+                                        <CardCounter>
+                                            Completed {taskBlocks[index].length} task{taskBlocks[index].length > 1 ? 's' : ''}
+                                        </CardCounter>
+                                    </CardHeader>
 
-                            {taskBlocks[index].map((task, index) => (
-                                <Task
-                                    key={index}
-                                    task={task}
-                                    editable={false}
-                                    handleDeleteTask={this.props.handleDeleteTask}
-                                />
-                            ))}
-                        </Card>
-                    );
-                })}
+                                    {taskBlocks[index].map((task, index) => (
+                                        <Task
+                                            key={index}
+                                            task={task}
+                                            editable={false}
+                                            handleDeleteTask={this.props.handleDeleteTask}
+                                        />
+                                    ))}
+                                </Card>
+                            );
+                        })}
 
-            </div>
+                    </div>
+                ) : (
+                    <EmptyStateContainer>You haven't completed any tasks yet. 🙁</EmptyStateContainer>
+                )}
+            </React.Fragment>
         );
     }
 }
