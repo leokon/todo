@@ -13,6 +13,7 @@ import TaskList from './TaskList.js';
 import CompletedTaskList from './CompletedTaskList.js';
 import TaskForm from './TaskForm.js';
 import Menu from './Menu.js';
+import Statistics from './Statistics.js';
 
 const OuterContainer = styled.div`
     display: flex;
@@ -342,32 +343,44 @@ class App extends React.Component {
                             />
 
                             <div>
-                                {this.state.currentView === Views.tasks ? (
-                                    <TaskList
-                                        {...this.props}
-                                        tasks={this.state.tasks.filter((task) => (!task.completed))}
-                                        fullTasks={this.state.tasks}
-                                        filterTags={this.state.filterTags}
-                                        tags={this.state.tags}
-                                        error={this.state.error}
-                                        draggable={true}
-                                        handleTaskMoved={this.handleTaskMoved}
-                                        handleTaskCompleted={this.handleTaskCompleted}
-                                        handleDeleteTask={this.handleDeleteTask}
-                                        handleUpdateTask={this.handleUpdateTask}
-                                    />
-                                ) : (
-                                    <CompletedTaskList
-                                        {...this.props}
-                                        tasks={
-                                            this.state.tasks
-                                                .filter((task) => (task.completed))
-                                                .sort((a, b) => (new Date(b.completed_at) - new Date(a.completed_at)))
-                                        }
-                                        filterTags={this.state.filterTags}
-                                        handleDeleteTask={this.handleDeleteTask}
-                                    />
-                                )}
+                                {(() => {
+                                    if (this.state.currentView === Views.tasks) {
+                                        return (
+                                            <TaskList
+                                                {...this.props}
+                                                tasks={this.state.tasks.filter((task) => (!task.completed))}
+                                                fullTasks={this.state.tasks}
+                                                filterTags={this.state.filterTags}
+                                                tags={this.state.tags}
+                                                error={this.state.error}
+                                                draggable={true}
+                                                handleTaskMoved={this.handleTaskMoved}
+                                                handleTaskCompleted={this.handleTaskCompleted}
+                                                handleDeleteTask={this.handleDeleteTask}
+                                                handleUpdateTask={this.handleUpdateTask}
+                                            />
+                                        );
+                                    } else if (this.state.currentView === Views.completed) {
+                                        return (
+                                            <CompletedTaskList
+                                                {...this.props}
+                                                tasks={
+                                                    this.state.tasks
+                                                        .filter((task) => (task.completed))
+                                                        .sort((a, b) => (new Date(b.completed_at) - new Date(a.completed_at)))
+                                                }
+                                                filterTags={this.state.filterTags}
+                                                handleDeleteTask={this.handleDeleteTask}
+                                            />
+                                        );
+                                    } else if (this.state.currentView === Views.statistics) {
+                                        return (
+                                            <Statistics />
+                                        );
+                                    } else {
+                                        return null;
+                                    }
+                                })()}
                             </div>
                         </AppContainer>
                     </InnerContainer>

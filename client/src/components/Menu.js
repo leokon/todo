@@ -170,7 +170,7 @@ class Menu extends React.Component {
                         <FontAwesomeIcon icon={faCheck} />
                         <span>Completed</span>
                     </MenuItem>
-                    <MenuItem>
+                    <MenuItem selected={this.props.currentView === Views.statistics} onClick={() => (this.handleClick(Views.statistics))}>
                         <FontAwesomeIcon icon={faChartBar} />
                         <span>Statistics</span>
                     </MenuItem>
